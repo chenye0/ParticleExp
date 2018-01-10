@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Exp - Shader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				font-weight: bold;
+			}
+			#container {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: linear-gradient(#20202c, #515175);
+			}
+			a {
+				color: #fff;
+			}
+			button {
+				position: fixed;
+				z-index: 10;
+				background-color: black; /* Green */
+			    border: none;
+			    color: white;
+			    padding: 15px 15px;
+			    text-align: center;
+			    text-decoration: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<button type="button" onclick="switchScene()">Switch Scene</button>
+		<div id="container"></div>
+
+		<script src="js/three.min.js"></script>
+		<script type="text/javascript" src="js/OrbitControls.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/TweenMax.min.js"></script>
+		<script src="js/perlin.js"></script>
+		<script type="x-shader/x-vertex" id="vertexsnowshader">
+			uniform float time;
+			uniform int pattern;
+			attribute vec3 refer;
+			attribute vec3 customColor;
+			attribute vec3 selfspeed;
+			attribute vec3 rotation;
+			attribute float rspeed;
+			attribute float life;
+			uniform vec3 winddir;
+			uniform float windspeed;
+
+			varying vec2 vUv;
+			varying vec3 vColor;
+			// varying vec3 vRotation;
+			vec3 rotateX(vec3 pos, float alpha) {
+			    mat4 trans= mat4(   1.0, 0.0, 0.0, 0.0, 
+			                        0.0, cos(alpha), -sin(alpha), 0.0, 
+			                        0.0, sin(alpha), cos(alpha), 0.0, 
+			                        0.0, 0.0, 0.0, 1.0);
+			    return vec3(trans * vec4(pos, 1.0));
+			}
+
+			vec3 rotateZ(vec3 pos, float alpha) {
+			    mat4 trans= mat4(   cos(alpha), -sin(alpha), 0.0, 0.0, 
+			                        sin(alpha), cos(alpha), 0.0, 0.0, 
+			                        0.0, 0.0, 1.0, 0.0, 
+			                        0.0, 0.0, 0.0, 1.0);
+			    return vec3(trans * vec4(pos, 1.0));
+			}
+
+			vec3 rotateY(vec3 pos, float alpha) {
+			    mat4 trans= mat4(   cos(alpha), 0.0, sin(alpha), 0.0, 
+			                        0.0, 1.0, 0.0, 0.0, 
+			                        -sin(alpha), 0.0, cos(alpha), 0.0, 
+			                        0.0, 0.0, 0.0, 1.0);
+			    return vec3(trans * vec4(pos, 1.0));
+			}
+
+			void main() {
+				if (pattern <1 || pattern ==3) {
+					vec3 windshift = life * windspeed * winddir;
+				    vec3 selfshift = life * selfspeed * 10.0;
+					vec3 r = life * rspeed * rotation;
+					vColor = customColor;
+					vUv = uv;
+					vec3 translated = position;
+					vec3 rotated =  rotateX(translated, r.x);
+					rotated =  rotateY(rotated, r.y);
+					rotated =  rotateZ(rotated, r.z);
+					translated = rotated + refer;
+					vec3 finalPos = translated + windshift + selfshift;
+					vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
+					// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
+					gl_Position = projectionMatrix * mvPosition;
+				} else if (pattern == 2) { //raindrop/particle
+					vec3 windshift = life * windspeed * winddir;
+				    vec3 selfshift = life * selfspeed;
+					vColor = customColor;
+					vUv = uv;
+		
+					vec3 translated = position + refer;
+					vec3 finalPos = translated + windshift + selfshift;
+					vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
+					// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
+					gl_Position = projectionMatrix * mvPosition;
+
+				}
+				else {
+					vec3 windshift = vec3 ( life * 0.1 * sin(0.3*life * winddir.x), life * winddir.z, cos(0.2*life * winddir.x) * life  * 0.1);
+				    vec3 selfshift = life * selfspeed;
+					vec3 r = life * rspeed * rotation;
+					vColor = customColor;
+					vUv = uv;
+					vec3 translated = position;
+					vec3 rotated =  rotateX(translated, r.x);
+					rotated =  rotateY(rotated, r.y);
+					rotated =  rotateZ(rotated, r.z);
+					translated = rotated + refer;
+					vec3 finalPos = translated + windshift + selfshift;
+					vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
+					// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
+					gl_Position = projectionMatrix * mvPosition;
+				}
+
+			}
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform vec3 color;
+			uniform sampler2D texture;
+
+			varying vec3 vColor;
+			varying vec2 vUv;
+
+			void main() {
+				float mid = 0.5;
+				gl_FragColor = vec4( 1.0,1.0,1.0, 1.0 );
+				gl_FragColor = gl_FragColor * texture2D( texture, vUv);
+			}
+		</script>
+		<script type="application/x-glsl" id="sky-vertex">  
+			varying vec2 vUV;
+
+			void main() {  
+			  vUV = uv;
+			  vec4 pos = vec4(position, 1.0);
+			  gl_Position = projectionMatrix * modelViewMatrix * pos;
+			}
+		</script>
+		<script type="application/x-glsl" id="sky-fragment">  
+			uniform sampler2D texture;  
+			varying vec2 vUV;
+
+			void main() {  
+			  vec4 sample = texture2D(texture, vUV);
+			  gl_FragColor = vec4(sample.xyz, sample.w);
+			}
+		</script>  
+
+		<script>
+
+		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+		var renderer, scene, camera, stats, pointLight;
+
+		var particleSystem, uniforms, geometry, seaPlane, skyuniforms,skyBox, terrain;
+		
+		var group = new THREE.Group();
+		var texture = ['Assets/snowflakes.png', 'Assets/leaf4.png', 'Assets/raindrop.png', 'Assets/flower.png'];
+		var skytexture = ['Assets/winter.jpg', 'Assets/summer.jpg', 'Assets/winter1.jpg', 'Assets/winter.jpg'];
+		var Idx = 0, space =false;
+
+		var particles = 500;
+
+		var WIDTH = window.innerWidth;
+		var HEIGHT = window.innerHeight;
+
+		init();
+		animate();
+		function createLights() {
+			hemisphereLight = new THREE.HemisphereLight(0xffffff,0xffffff, .4);
+			pointLight = new THREE.PointLight( 0xffcc00, 1, 100 );
+			pointLight.position.set( 50, 50, 50);
+			hemisphereLight.position.set( 0, 0, 0);
+			shadowLight = new THREE.DirectionalLight(0xffffff, 0.5);
+			shadowLight.color.setHSL( 0.1, 1, 0.95 );
+			shadowLight.position.set(-15, 20, 20);
+			shadowLight.target.position.set(0, 20, 0);
+			shadowLight.castShadow = true;
+
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xffcc00} );
+			var lamp = new THREE.Mesh( geometry, material );
+			lamp.position.set(50, 50, 50);
+			//scene.add( lamp );
+			//scene.add(pointLight);
+			scene.add(hemisphereLight);
+			scene.add(shadowLight);
+		}
+		function createGround() {
+			var Texloader = new THREE.TextureLoader();
+			// var bump = THREE.ImageUtils.loadTexture("Assets/noise.jpg");
+			var snowmaterial = new THREE.MeshLambertMaterial({
+				color: 0xffffff,
+				// bumpMap: bump
+			});
+			var seageom = new THREE.PlaneBufferGeometry(1000, 1000, 128, 128);
+			terrain = new THREE.Mesh(seageom, snowmaterial);
+			// get the vertices
+			// const Perlin = require('./perlin.js').Perlin;
+			var perlin = new SimplexNoise(); 
+			var peak = 10;
+			var smoothing = 300;
+			var vertices = terrain.geometry.attributes.position.array;
+			for (var i = 0; i <= vertices.length; i += 3) {
+			    vertices[i+2] = peak * perlin.noise(
+			        vertices[i]/smoothing, 
+			        vertices[i+1]/smoothing
+			    );
+			}
+			terrain.geometry.attributes.position.needsUpdate = true;
+			terrain.geometry.computeVertexNormals();
+			terrain.rotation.x = -90 * Math.PI/180;
+
+			scene.add(terrain);
+		}
+
+		function createParticle() {
+			uniforms = {
+				pattern: { value: 0 },
+				time: { value: 10.0 },
+				winddir: { value: new THREE.Vector3( 0.3, -2, 0.3) },
+				windspeed: { value: 0.1 },
+				color:     { value: new THREE.Color( 0xffffff ) },
+				texture:   { value: new THREE.TextureLoader().load( texture[0] ), transparent: true, opacity: 0.1 }
+			};
+
+			var particleMaterial = new THREE.ShaderMaterial( {
+				uniforms:       uniforms,
+				vertexShader:   document.getElementById( 'vertexsnowshader' ).textContent,
+				fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+				side:           THREE.DoubleSide,
+				depthTest:      false,
+				transparent:    true
+			});
+
+			var radius = 200;
+			var triangles = particles * 2;
+			var vertex = triangles * 3;
+
+			geometry = new THREE.BufferGeometry();
+
+			var color = new THREE.Color(0xffcc99);
+			var positions = new Float32Array( vertex * 3); 
+			var colors = new Float32Array( vertex * 3);
+			var uvs = new Float32Array ( vertex * 2);
+			var rotations = new Float32Array( vertex * 3 ); // vertex / 2
+			var rspeed = new Float32Array( vertex);
+			var life = new Float32Array( vertex);
+			var selfspeed = new Float32Array( vertex * 3 ); // vertex / 2
+  			var reference = new Float32Array( vertex * 3);
+
+			function verts_push(p, arr) {
+				var v = p * 18;
+				for (var i=0; i < arr.length; i++) {
+					positions[v++] = arr[i];
+				}
+			}
+			function uvs_push(p, arr) {
+				var v = p * 12;
+				for (var i=0; i < arr.length; i++) {
+					uvs[v++] = arr[i];
+				}
+			}
+
+			for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+				var tmpr = [getRandom(-1.0, 1.0), 0, getRandom(-1, 1)];
+				var tmprs = getRandom(-0.1, 0.1);
+				var selfs = [getRandom(-0.01, 0.01), getRandom(-0.01, 0.01), getRandom(-0.01, 0.01)];
+				
+				var initpos = [getRandom(-150.0, 150.0),100,getRandom(-150.0, 150.0)],
+					plife = getRandom(100, 2000);
+				var size =  2;
+
+				for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+					rotations[i6 + j3    ] =  tmpr[0];
+					rotations[i6 + j3 + 1] =  tmpr[1];
+					rotations[i6 + j3 + 2] =  tmpr[2];
+
+					selfspeed[i6 + j3    ] =  selfs[0];
+					selfspeed[i6 + j3 + 1] =  selfs[1];
+					selfspeed[i6 + j3 + 2] =  selfs[2];
+
+					reference[ i6 + j3	  ] = initpos[0];
+					reference[ i6 + j3 + 1] = initpos[1];
+					reference[ i6 + j3 + 2] = initpos[2];
+
+					rspeed[i * 6 + j] = tmprs;
+					life[i * 6 + j] = plife;
+				}
+				verts_push(i, [
+					-size, -size,  0.0*i,
+					 size, -size,  0.0*i,
+					 size,  size,  0.0*i,
+
+					 size,  size,  0.0*i,
+					-size,  size,  0.0*i,
+					-size, -size,  0.0*i ]
+				)
+				var pu = Math.random() > .5 ? 0. : 0.5;
+				var pv = Math.random() > .5 ? 0 : 0.5;
+
+				uvs_push(i, [
+					pu, pv,
+					pu + 0.5, pv,
+					pu + 0.5, pv +0.5,
+
+					pu + 0.5, pv +0.5,
+					pu, pv + 0.5,
+					pu, pv]
+				)
+			}
+			for ( var i = 0, i3 = 0; i < vertex; i ++, i3 += 3 ) {
+				// sizes[ i ] = 10;
+				colors[ i3 + 0 ] = color.r;
+				colors[ i3 + 1 ] = color.g;
+				colors[ i3 + 2 ] = color.b;
+				// positions[i3]
+				if (i%3===1 || i%3 ===4) {
+					colors[i3 + 1] = color.g - 0.3;
+				}
+			}	
+
+			geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+			geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
+			geometry.addAttribute( 'rotation', new THREE.BufferAttribute( rotations, 3 ) );
+			geometry.addAttribute( 'selfspeed', new THREE.BufferAttribute( selfspeed, 3 ) );
+			geometry.addAttribute( 'rspeed', new THREE.BufferAttribute( rspeed, 1 ) );
+			geometry.addAttribute( 'life', new THREE.BufferAttribute( life, 1 ) );
+			geometry.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+			geometry.addAttribute( 'refer', new THREE.BufferAttribute( reference, 3 ) );
+
+			particleSystem = new THREE.Mesh( geometry, particleMaterial );
+
+			scene.add( particleSystem );
+
+		}
+		function load3dmodel() {
+			// import tree
+			var loader = new THREE.ObjectLoader();
+			loader.load('3dmodels/sampletree.json', function(loadedObj, materials) {
+			    var Texloader = new THREE.TextureLoader();
+  				var texture = Texloader.load( 'Assets/wood.jpg', function ( texture ) {
+				    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				    texture.offset.set( 0, 0 );
+				    texture.repeat.set( 2, 2 );
+				} );
+	
+				// console.log(loadedObj);
+				var tree = loadedObj.getObjectByName("tree.001");
+				// // var tree1 = loadedObj.getObjectByName("tree.002");
+  				var treematerial = new THREE.MeshBasicMaterial({transparent: false, map: texture});
+			    tree.material = treematerial;
+			    // console.log(tree);
+			    scene.add(tree);
+			});
+
+		}
+		function createSky() {
+			var skyGeo = new THREE.SphereGeometry(300, 40, 25); 
+			skyuniforms = {  
+			  texture: { type: 't', value: THREE.ImageUtils.loadTexture('Assets/winter.jpg') }
+			};
+			var skymat = new THREE.ShaderMaterial( {  
+				uniforms:       skyuniforms,
+				vertexShader:   document.getElementById('sky-vertex').textContent,
+				fragmentShader: document.getElementById('sky-fragment').textContent
+			});
+
+			skyBox = new THREE.Mesh(skyGeo, skymat);
+		    skyBox.scale.set(-1, 1, 1);  
+			skyBox.eulerOrder = 'XZY';  
+			skyBox.renderDepth = 1000.0;  
+			scene.add(skyBox); 
+		}
+		function switchScene() {
+			console.log(Idx);
+			Idx < 3 ? Idx += 1 : Idx = 0;
+			uniforms.pattern.value = Idx;
+			var reference = geometry.attributes.refer.array;
+			switch (Idx) {
+			    case 0: // snow
+			        uniforms.winddir.value = new THREE.Vector3( 0.3, -2, 0.3);
+			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+						var initpos = [getRandom(-100.0, 100.0),200,getRandom(-100.0, 100.0)];
+						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+							reference[ i6 + j3	  ] = initpos[0];
+							reference[ i6 + j3 + 1] = initpos[1];
+							reference[ i6 + j3 + 2] = initpos[2];
+						}
+					}
+			        break;
+			    case 1:
+			        uniforms.winddir.value = new THREE.Vector3( 0.03, -5, 0.1);
+			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+						var initpos = [getRandom(-10.0, 10.0),getRandom(0.0, 5.0),getRandom(-10.0, 10.0)];
+						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+							reference[ i6 + j3	  ] = initpos[0];
+							reference[ i6 + j3 + 1] = initpos[1];
+							reference[ i6 + j3 + 2] = initpos[2];
+						}
+					}
+			        break;
+			    case 2: //raindrop
+			        uniforms.winddir.value = new THREE.Vector3( 0, -10, 0);
+			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+						var initpos = [getRandom(-50.0, 50.0),60,getRandom(-50.0, 50.0)];
+						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+							reference[ i6 + j3	  ] = initpos[0];
+							reference[ i6 + j3 + 1] = initpos[1];
+							reference[ i6 + j3 + 2] = initpos[2];
+						}
+					}
+			        break;
+			     case 3: //raindrop
+			        uniforms.winddir.value = new THREE.Vector3( 0, 0, 0);
+			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+						var initpos = [getRandom(-5.0, 5.0),20,getRandom(-5.0, 5.0)];
+						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+							reference[ i6 + j3	  ] = initpos[0];
+							reference[ i6 + j3 + 1] = initpos[1];
+							reference[ i6 + j3 + 2] = initpos[2];
+						}
+					}
+			        break;
+			}
+			uniforms.texture.value = new THREE.TextureLoader().load( texture[Idx] );
+			skyuniforms.texture.value = new THREE.TextureLoader().load( skytexture[Idx] );
+			
+			//TweenMax.to(skyBox.material, 0, { opacity: 0 });
+			geometry.attributes.refer.needsUpdate = true;
+			particleSystem.material.needsUpdate = true;
+			skyBox.material.needsUpdate = true;
+		}
+		function getRandom(min, max) {
+		    return Math.random() * (max - min) + min;
+		}
+
+		function init() {
+			camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.1, 10000 );
+			camera.position.x = -250;
+			camera.position.y = 20;
+
+			scene = new THREE.Scene();
+			createGround();
+			createSky();
+			load3dmodel();
+			createParticle();
+			createLights();
+			
+			renderer = new THREE.WebGLRenderer({ 
+				alpha: true, 
+				antialias: true 
+			});
+			renderer.setClearColor( 0xffffff, 0);
+		    renderer.setSize(WIDTH, HEIGHT);
+
+			var container = document.getElementById( 'container' );
+			container.appendChild( renderer.domElement );
+			
+			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
+			cameraControls.target.set(0, 30, 0);
+			cameraControls.minPolarAngle = Math.PI/4; // radians
+			cameraControls.maxPolarAngle = Math.PI/2 + 0.1; // radians
+			cameraControls.minDistance = 10;
+			cameraControls.maxDistance = 300;
+		
+			window.addEventListener( 'resize', onWindowResize, false );
+
+		}
+		
+		document.body.onkeyup = function(e){
+		    if(e.keyCode == 32){
+		    	cameraControls.enabled = space;
+		        space = !space;
+		    	if (space) {
+					document.addEventListener('mousedown', onDocumentMouseDown, true);
+					document.addEventListener('mouseup', onDocumentMouseUp, true);
+		    	} else {
+		    		document.removeEventListener('mousedown', onDocumentMouseDown, true);
+					document.removeEventListener('mouseup', onDocumentMouseUp, true);
+		    	}	
+		    }
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+		}
+
+		function animate() {
+			requestAnimationFrame( animate );
+			render();
+		}
+
+		function render() {
+			var now = Date.now() * 0.005;
+			uniforms.time.value += 1;
+			var positions = geometry.attributes.position.array;
+			var rotations = geometry.attributes.rotation.array;
+			var plifes = geometry.attributes.life.array;
+
+			//walking
+			// var vertices = terrain.geometry.attributes.position.array;
+			// if (uniforms.time.value % 10 == 0) {
+			// 	var step = 14403 + uniforms.time.value / 100 * 9;
+			// 	// var right = 15393 + uniforms.time.value / 100 * 9;
+			// 	// console.log(step);
+			// 	// for (var i = 14400; i <= 14403 + ; i += 3) {
+			//  	vertices[step + 2] = -5;
+			// }
+			// console.log(vertices);
+			for (var i = 0, i6 = 0; i < particles * 6; i ++, i6 += 6 ) {
+				if (plifes[i6] < 1050) {
+					plifes[i6] += 1;
+					plifes[i6 + 1] += 1;
+					plifes[i6 + 2] += 1;
+					plifes[i6 + 3] += 1;
+					plifes[i6 + 4] += 1;
+					plifes[i6 + 5] += 1;
+				} else {
+					plifes[i6] -= 1050;
+					plifes[i6 + 1] -= 1050;
+					plifes[i6 + 2] -= 1050;
+					plifes[i6 + 3] -= 1050;
+					plifes[i6 + 4] -= 1050;
+					plifes[i6 + 5] -= 1050;
+				}
+			}
+			//terrain.geometry.attributes.position.needsUpdate = true;
+			//terrain.geometry.computeVertexNormals();
+			geometry.attributes.life.needsUpdate = true;
+			renderer.render( scene, camera );
+		}
+	</script>
+
+</body>
+</html>

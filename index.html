@@ -1,490 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Exp - Shader</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<style>
-			body {
-				color: #ffffff;
-				margin: 0px;
-				overflow: hidden;
-			}
-			#info {
-				position: absolute;
-				top: 0px;
-				width: 100%;
-				padding: 5px;
-				font-family: Monospace;
-				font-size: 13px;
-				text-align: center;
-				font-weight: bold;
-			}
-			#container {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				overflow: hidden;
-				/*background: linear-gradient(#dbe6f6, #c5796d);*/
-			}
-			a {
-				color: #fff;
-			}
-			button {
-				position: fixed;
-				z-index: 10;
-				background-color: black; /* Green */
-			    border: none;
-			    color: white;
-			    padding: 15px 15px;
-			    text-align: center;
-			    text-decoration: none;
-			}
-		</style>
-	</head>
+  <head>
+    <title>Exp - WebGL/Threejs</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
 
-	<body>
-		<button type="button" onclick="switchScene()">Switch Scene</button>
-		<div id="container"></div>
+      body {
+        /*color: #101429;*/
+        margin: 0px;
+        overflow: hidden;
+        background-color: #101429;
+      }
+      #container {
+        width: 300px;
+        color: white;
+      }
 
-		<script src="js/three.min.js"></script>
-		<script type="text/javascript" src="js/OrbitControls.js"></script>
-		<script src="js/Detector.js"></script>
-		<!-- <script src="../three.js-dev/examples/js/libs/stats.min.js"></script> -->
-		<script src="js/perlin.js"></script>
-		<script type="x-shader/x-vertex" id="vertexshader">
-			uniform float time;
-			attribute vec3 refer;
-			attribute vec3 customColor;
-			attribute vec3 selfspeed;
-			attribute vec3 rotation;
-			attribute float rspeed;
-			attribute float life;
-			uniform vec3 winddir;
-			uniform float windspeed;
+      #container img {
+        position: absolute;
+        top: -200px;
+        left: -40%;
+      }
+      p {
+        font-size: 0.75em;
+      }
+      h2 {
+        /*color: rgb(143,28,67);*/
+        color: #87E8E9
+      }
 
-			varying vec2 vUv;
-			varying vec3 vColor;
-			// varying vec3 vRotation;
-			vec3 rotateX(vec3 pos, float alpha) {
-			    mat4 trans= mat4(   1.0, 0.0, 0.0, 0.0, 
-			                        0.0, cos(alpha), -sin(alpha), 0.0, 
-			                        0.0, sin(alpha), cos(alpha), 0.0, 
-			                        0.0, 0.0, 0.0, 1.0);
-			    return vec3(trans * vec4(pos, 1.0));
-			}
+      #layerbg {
+        width: 2000px;
+        height: 1800px;
+        background-color: #101429;
+/*      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d324b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");*/
+        background-image: url('Assets/background.jpg');
+      }
 
-			vec3 rotateZ(vec3 pos, float alpha) {
-			    mat4 trans= mat4(   cos(alpha), -sin(alpha), 0.0, 0.0, 
-			                        sin(alpha), cos(alpha), 0.0, 0.0, 
-			                        0.0, 0.0, 1.0, 0.0, 
-			                        0.0, 0.0, 0.0, 1.0);
-			    return vec3(trans * vec4(pos, 1.0));
-			}
+      .three-div{
+        background-color: none;
+        width: 300px;
+        font-family: Georigia, Helvetica, Sans-serif;
+        font-size: 0.2em;
+        line-height: 1.5em;
+        padding: 1em;
+      }
+      .thumbnail {
+        width: 300px;
+        color: white;
+      }
+      .thumbnail p {
+        width: 180px;
+        font-size: 10px;
+      }
+      .thumbnail img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;  
+        transition: all .2s ease-in-out;
+        overflow: hidden;
+      }
+      .thumbnail img:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
 
-			vec3 rotateY(vec3 pos, float alpha) {
-			    mat4 trans= mat4(   cos(alpha), 0.0, sin(alpha), 0.0, 
-			                        0.0, 1.0, 0.0, 0.0, 
-			                        -sin(alpha), 0.0, cos(alpha), 0.0, 
-			                        0.0, 0.0, 0.0, 1.0);
-			    return vec3(trans * vec4(pos, 1.0));
-			}
+  <body>
+    <div id="container">
+      <!-- <img src="Assets/line2.png"></img> -->
+      <h2>WebGL/Threejs Experiment</h2>
+      <p>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</p>
+    </div>
+    <div id="layerbg">
 
-			void main() {
-			    // float ra = 1.0*sin(time);
-			    vec3 windshift = life * windspeed * winddir;
-			    vec3 selfshift = life * selfspeed;
-				vec3 r = life * rspeed * rotation;
-				vColor = customColor;
-				vUv = uv;
-				vec3 translated = position;
-				vec3 rotated =  rotateX(translated, r.x);
-				rotated =  rotateY(rotated, r.y);
-				rotated =  rotateZ(rotated, r.z);
-				translated = rotated + refer;
-				vec3 finalPos = translated + windshift + selfshift;
-				vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
-				// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
-				gl_Position = projectionMatrix * mvPosition;
+    </div>
+    <div class="thumbnail" id='p3'>
+      <a href='particle.html'><img src="Assets/thumbnails/p3.png"></img></a>
+      <p>Threejs animated scenes powered with webGL particle shaders.</p>
+    </div>
+    <div class="thumbnail" id='p1'>
+      <a href='cat.html'><img src="Assets/thumbnails/p1.png"></img></a>
+      <p>Nyanko-sensei(from anime Natsume's Book of Friends)</p>
+    </div>
+    <div class="thumbnail" id='p2'>
+      <a href='https://chenye0.github.io/threejsPlay'><img src="Assets/thumbnails/p2.png"></img></a>
+      <p>A palm island created with Blender3D, animated with Threejs.</p>
+    </div>
+    <script src="js/three.min.js"></script>
+    <script type="text/javascript" src="js/css3dcontrol.js"></script>
+    <script src="js/Detector.js"></script>
+    <!-- <script src="js/TweenMax.min.js"></script> -->
+    <script src="js/CSS3DRender.js"></script>
+    <script>
+    var camera;
+    var controls;
+    var scene;
+    var torus;
+    var light;
+    var renderer;
+    var scene2;
+    var renderer2;
+    var div;
 
-			}
+    init();
+    animate();
 
-		</script>
+    function init() {
+    //camera
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.set(0, 0, 600);
 
-		<script type="x-shader/x-fragment" id="fragmentshader">
+    // controls
+    controls = new THREE.OrbitControls(camera);
+    controls.rotateSpeed = 0.1;
+    controls.enableZoom = false;
+    // controls.autoRotate = true;
 
-			uniform vec3 color;
-			uniform sampler2D texture;
 
-			varying vec3 vColor;
-			varying vec2 vUv;
+    controls.target.set(0, 0, 0);
+    // controls.panSpeed = 0.8;
 
-			void main() {
-				float mid = 0.5;
-				gl_FragColor = vec4( 1.0,1.0,1.0, 1.0 );
-				gl_FragColor = gl_FragColor * texture2D( texture, vUv);
+    //Scene
+    scene = new THREE.Scene();
 
-			}
+    //TorusGeometry
+    torus = new THREE.Mesh(new THREE.TorusGeometry(120, 60, 40, 40),
+                 new THREE.MeshNormalMaterial());
+    torus.position.set(0, 0, 0);
+    //scene.add(torus);
 
-		</script>
-		<script type="application/x-glsl" id="sky-vertex">  
-			varying vec2 vUV;
+    //HemisphereLight
+    light = new THREE.HemisphereLight(0xffbf67, 0x15c6ff);
+    scene.add(light);
 
-			void main() {  
-			  vUV = uv;
-			  vec4 pos = vec4(position, 1.0);
-			  gl_Position = projectionMatrix * modelViewMatrix * pos;
-			}
-		</script>
-		<script type="application/x-glsl" id="sky-fragment">  
-			uniform sampler2D texture;  
-			varying vec2 vUV;
+    //WebGL Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setClearColor(0xffffff, 1)
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.domElement.style.zIndex = 5;
+    document.body.appendChild(renderer.domElement);
 
-			void main() {  
-			  vec4 sample = texture2D(texture, vUV);
-			  gl_FragColor = vec4(sample.xyz, sample.w);
-			}
-		</script>  
+    //CSS3D Scene
+    scene2 = new THREE.Scene();
 
-		<script>
+    //HTML
+    element = document.createElement('div');
+    element.innerHTML = '';
+    element.innerHTML = 'WebGL/Threejs Experiment<span>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</span>';
+    element.className = 'three-div';
+    var title = document.getElementById('container');
+    var bg = document.getElementById('layerbg');
+    //Projects
+    p1 = document.getElementById('p1');
+    p2 = document.getElementById('p2');
+    p3 = document.getElementById('p3');
+    // p1.innerHTML = '<img src="Assets/thumbnails/p1.png"></img>';
+    // p2.innerHTML = '<img src="Assets/thumbnails/p2.png"></img>';
+    // p3.innerHTML = '<img src="Assets/thumbnails/p3.png"></img> ';
+    // // p1.className = 'thumbnail';
+    // p2.className = 'thumbnail';
+    // p3.className = 'thumbnail';
 
-		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+    //CSS Object
+    div = new THREE.CSS3DObject(element);
+    p1 = new THREE.CSS3DObject(p1);
+    p2 = new THREE.CSS3DObject(p2);
+    p3 = new THREE.CSS3DObject(p3);
+    title = new THREE.CSS3DObject(title);
+    bg = new THREE.CSS3DObject(bg);
+    // div.rotation.y = Math.PI;
+    //scene2.add(div);
+    title.position.set(0, 150 , -10);
+    p1.position.set(-200,-50,-10);
+    p2.position.set(340,-70,-10);
+    p3.position.set(50, -130, -10);
+    bg.position.set(0,-100,-400);
+    scene2.add(p1);
+    scene2.add(p2);
+    scene2.add(p3);
+    scene2.add(title);
+    scene2.add(bg);
 
-		var renderer, scene, camera, stats, pointLight;
+    //CSS3D Renderer
+    renderer2 = new THREE.CSS3DRenderer();
+    renderer2.setSize(window.innerWidth, window.innerHeight);
+    renderer2.domElement.style.position = 'absolute';
+    renderer2.domElement.style.backgroundColor = '#101429';
+    renderer2.domElement.style.top = 0;
+    document.body.appendChild(renderer2.domElement);
+  }
 
-		var particleSystem, uniforms, geometry, seaPlane, skyuniforms, terrain;
-		
-		var group = new THREE.Group();
-		var texture = ['Assets/snowflakes.png', 'Assets/flower.png'];
-		var Idx = 0, space =false;
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer2.render(scene2, camera);
+    renderer.render(scene, camera);
+    // controls.up date();
+  }
 
-		var particles = 500;
 
-		var WIDTH = window.innerWidth;
-		var HEIGHT = window.innerHeight;
+  // window.addEventListener('scroll', function(e) {
+  //   console.log("e");
 
-		init();
-		animate();
-		function createLights() {
-			hemisphereLight = new THREE.HemisphereLight(0xffffff,0xffffff, .4);
-			pointLight = new THREE.PointLight( 0xffcc00, 1, 100 );
-			pointLight.position.set( 50, 50, 50);
-			//scene.add( pointLight );
-			hemisphereLight.position.set( 0, 0, 0);
-			shadowLight = new THREE.DirectionalLight(0xffffff, 0.5);
-			shadowLight.color.setHSL( 0.1, 1, 0.95 );
-			shadowLight.position.set(-15, 20, 20);
-			shadowLight.target.position.set(0, 20, 0);
-			shadowLight.castShadow = true;
+  // });
 
-			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			var material = new THREE.MeshBasicMaterial( {color: 0xffcc00} );
-			var lamp = new THREE.Mesh( geometry, material );
-			lamp.position.set(50, 50, 50);
-			//scene.add( lamp );
-
-			scene.add(hemisphereLight);
-			scene.add(shadowLight);
-		}
-		function createGround() {
-			var Texloader = new THREE.TextureLoader();
-			// var bump = THREE.ImageUtils.loadTexture("Assets/noise.jpg");
-			var snowmaterial = new THREE.MeshLambertMaterial({
-				color: 0xffffff,
-				// bumpMap: bump
-			});
-			var seageom = new THREE.PlaneBufferGeometry(WIDTH/2, WIDTH/2, 128, 128);
-			terrain = new THREE.Mesh(seageom, snowmaterial);
-			// get the vertices
-			// const Perlin = require('./perlin.js').Perlin;
-			var perlin = new SimplexNoise(); 
-			var peak = 10;
-			var smoothing = 300;
-			var vertices = terrain.geometry.attributes.position.array;
-			for (var i = 0; i <= vertices.length; i += 3) {
-			    vertices[i+2] = peak * perlin.noise(
-			        vertices[i]/smoothing, 
-			        vertices[i+1]/smoothing
-			    );
-			}
-			terrain.geometry.attributes.position.needsUpdate = true;
-			terrain.geometry.computeVertexNormals();
-			terrain.rotation.x = -90 * Math.PI/180;
-
-			scene.add(terrain);
-		}
-
-		function createParticle() {
-			uniforms = {
-				time: { value: 10.0 },
-				winddir: { value: new THREE.Vector3( 0.3, -2, 0.3) },
-				windspeed: { value: 0.1 },
-				color:     { value: new THREE.Color( 0xffffff ) },
-				texture:   { value: new THREE.TextureLoader().load( texture[0] ), transparent: true, opacity: 0.1 }
-			};
-
-			var particleMaterial = new THREE.ShaderMaterial( {
-
-				uniforms:       uniforms,
-				vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-				fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-				side:           THREE.DoubleSide,
-				depthTest:      false,
-				transparent:    true
-			});
-
-			var radius = 200;
-			var triangles = particles * 2;
-			var vertex = triangles * 3;
-
-			geometry = new THREE.BufferGeometry();
-
-			var color = new THREE.Color(0xffcc99);
-			var positions = new Float32Array( vertex * 3); 
-			var colors = new Float32Array( vertex * 3);
-			var uvs = new Float32Array ( vertex * 2);
-			var rotations = new Float32Array( vertex * 3 ); // vertex / 2
-			var rspeed = new Float32Array( vertex);
-			var life = new Float32Array( vertex);
-			var selfspeed = new Float32Array( vertex * 3 ); // vertex / 2
-  			var reference = new Float32Array( vertex * 3);
-
-			function verts_push(p, arr) {
-				var v = p * 18;
-				for (var i=0; i < arr.length; i++) {
-					positions[v++] = arr[i];
-				}
-			}
-			function uvs_push(p, arr) {
-				var v = p * 12;
-				for (var i=0; i < arr.length; i++) {
-					uvs[v++] = arr[i];
-				}
-			}
-			function getRandom(min, max) {
-			    return Math.random() * (max - min) + min;
-			}
-
-			for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
-				var tmpr = [getRandom(-1.0, 1.0), 0, getRandom(-1, 1)];
-				var tmprs = getRandom(-0.1, 0.1);
-				var selfs = [getRandom(-0.01, 0.01), getRandom(0, 0.01), getRandom(-0.01, 0.01)];
-				// var initpos = [getRandom(-20.0, 20.0), getRandom(10.0, 20.0), getRandom(-10.0, 10.0)],
-				var initpos = [getRandom(-100.0, 100.0),100,getRandom(-100.0, 100.0)],
-					plife = getRandom(100, 2000);
-				var size =  1;
-
-				for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
-					rotations[i6 + j3    ] =  tmpr[0];
-					rotations[i6 + j3 + 1] =  tmpr[1];
-					rotations[i6 + j3 + 2] =  tmpr[2];
-
-					selfspeed[i6 + j3    ] =  selfs[0];
-					selfspeed[i6 + j3 + 1] =  selfs[1];
-					selfspeed[i6 + j3 + 2] =  selfs[2];
-
-					reference[ i6 + j3	  ] = initpos[0];
-					reference[ i6 + j3 + 1] = initpos[1];
-					reference[ i6 + j3 + 2] = initpos[2];
-
-					rspeed[i * 6 + j] = tmprs;
-					life[i * 6 + j] = plife;
-				}
-				verts_push(i, [
-					-size, -size,  0.0*i,
-					 size, -size,  0.0*i,
-					 size,  size,  0.0*i,
-
-					 size,  size,  0.0*i,
-					-size,  size,  0.0*i,
-					-size, -size,  0.0*i ]
-				)
-				var pu = Math.random() > .5 ? 0. : 0.5;
-				var pv = Math.random() > .5 ? 0 : 0.5;
-
-				uvs_push(i, [
-					pu, pv,
-					pu + 0.5, pv,
-					pu + 0.5, pv +0.5,
-
-					pu + 0.5, pv +0.5,
-					pu, pv + 0.5,
-					pu, pv]
-				)
-			}
-			for ( var i = 0, i3 = 0; i < vertex; i ++, i3 += 3 ) {
-				// sizes[ i ] = 10;
-				colors[ i3 + 0 ] = color.r;
-				colors[ i3 + 1 ] = color.g;
-				colors[ i3 + 2 ] = color.b;
-				// positions[i3]
-				if (i%3===1 || i%3 ===4) {
-					colors[i3 + 1] = color.g - 0.3;
-				}
-			}	
-
-			geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-			geometry.addAttribute( 'customColor', new THREE.BufferAttribute( colors, 3 ) );
-			geometry.addAttribute( 'rotation', new THREE.BufferAttribute( rotations, 3 ) );
-			geometry.addAttribute( 'selfspeed', new THREE.BufferAttribute( selfspeed, 3 ) );
-			geometry.addAttribute( 'rspeed', new THREE.BufferAttribute( rspeed, 1 ) );
-			geometry.addAttribute( 'life', new THREE.BufferAttribute( life, 1 ) );
-			geometry.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
-			geometry.addAttribute( 'refer', new THREE.BufferAttribute( reference, 3 ) );
-
-			particleSystem = new THREE.Mesh( geometry, particleMaterial );
-
-			scene.add( particleSystem );
-
-		}
-		function load3dmodel() {
-
-			// import tree
-			var loader = new THREE.ObjectLoader();
-			loader.load('3dmodels/sampletree.json', function(loadedObj, materials) {
-			    var Texloader = new THREE.TextureLoader();
-  				var texture = Texloader.load( 'Assets/wood.jpg', function ( texture ) {
-				    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				    texture.offset.set( 0, 0 );
-				    texture.repeat.set( 2, 2 );
-				} );
-	
-				// console.log(loadedObj);
-				var tree = loadedObj.getObjectByName("tree.001");
-				// var flower = loadedObj.getObjectByName("leaves");
-				tree.position.z = 100;
-				tree.position.x = 100;
-				tree.position.y = -5;
-				// // var tree1 = loadedObj.getObjectByName("tree.002");
-  				var treematerial = new THREE.MeshBasicMaterial({transparent: false, map: texture});
-			    tree.material = treematerial;
-			    // console.log(tree);
-			    scene.add(tree);
-			});
-		}
-		function createSky() {
-			var skyGeo = new THREE.SphereGeometry(300, 40, 25); 
-			skyuniforms = {  
-			  texture: { type: 't', value: THREE.ImageUtils.loadTexture('Assets/winter.jpg') }
-			};
-			var skymat = new THREE.ShaderMaterial( {  
-				uniforms:       skyuniforms,
-				vertexShader:   document.getElementById('sky-vertex').textContent,
-				fragmentShader: document.getElementById('sky-fragment').textContent
-			});
-
-			var skyBox = new THREE.Mesh(skyGeo, skymat);
-		    skyBox.scale.set(-1, 1, 1);  
-			skyBox.eulerOrder = 'XZY';  
-			skyBox.renderDepth = 1000.0;  
-			scene.add(skyBox); 
-		}
-		function switchScene() {
-			console.log(Idx);
-			Idx < 2 ? Idx += 1 : Idx = 0;
-			uniforms.texture.value = new THREE.TextureLoader().load( texture[Idx] );
-			particleSystem.material.needsUpdate = true;
-		}
-
-		function init() {
-			camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 10000 );
-			camera.position.x = -200;
-			camera.position.y = 40;
-
-			scene = new THREE.Scene();
-			createGround();
-			createSky();
-			createParticle();
-			createLights();
-			load3dmodel();
-			renderer = new THREE.WebGLRenderer({ 
-				alpha: true, 
-				antialias: true 
-			});
-			renderer.setClearColor( 0xffffff, 0);
-		    renderer.setSize(WIDTH, HEIGHT);
-
-			var container = document.getElementById( 'container' );
-			container.appendChild( renderer.domElement );
-			
-			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-			cameraControls.target.set(0, 30, 0);
-			cameraControls.minPolarAngle = Math.PI/4; // radians
-			cameraControls.maxPolarAngle = Math.PI/2 + 0.1; // radians
-			cameraControls.minDistance = 30;
-			cameraControls.maxDistance = 300;
-		
-			window.addEventListener( 'resize', onWindowResize, false );
-
-		}
-		
-		document.body.onkeyup = function(e){
-		    if(e.keyCode == 32){
-		    	cameraControls.enabled = space;
-		        space = !space;
-		    	if (space) {
-					document.addEventListener('mousedown', onDocumentMouseDown, true);
-					document.addEventListener('mouseup', onDocumentMouseUp, true);
-		    	} else {
-		    		document.removeEventListener('mousedown', onDocumentMouseDown, true);
-					document.removeEventListener('mouseup', onDocumentMouseUp, true);
-		    	}	
-		    }
-		}
-
-		function onWindowResize() {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-		}
-
-		function animate() {
-			requestAnimationFrame( animate );
-			render();
-		}
-
-		function render() {
-			var now = Date.now() * 0.005;
-			uniforms.time.value += 1;
-			// uniforms.winddir.value.y += 0.01;
-			var positions = geometry.attributes.position.array;
-			var rotations = geometry.attributes.rotation.array;
-			var plifes = geometry.attributes.life.array;
-
-			//walking
-			// var vertices = terrain.geometry.attributes.position.array;
-			// if (uniforms.time.value % 10 == 0) {
-			// 	var step = 14403 + uniforms.time.value / 100 * 9;
-			// 	// var right = 15393 + uniforms.time.value / 100 * 9;
-			// 	// console.log(step);
-			// 	// for (var i = 14400; i <= 14403 + ; i += 3) {
-			//  	vertices[step + 2] = -5;
-			// }
-			// console.log(vertices);
-			for (var i = 0, i6 = 0; i < particles * 6; i ++, i6 += 6 ) {
-				if (plifes[i6] < 1050) {
-					plifes[i6] += 1;
-					plifes[i6 + 1] += 1;
-					plifes[i6 + 2] += 1;
-					plifes[i6 + 3] += 1;
-					plifes[i6 + 4] += 1;
-					plifes[i6 + 5] += 1;
-				} else {
-					plifes[i6] -= 1050;
-					plifes[i6 + 1] -= 1050;
-					plifes[i6 + 2] -= 1050;
-					plifes[i6 + 3] -= 1050;
-					plifes[i6 + 4] -= 1050;
-					plifes[i6 + 5] -= 1050;
-				}
-			}
-			//terrain.geometry.attributes.position.needsUpdate = true;
-			//terrain.geometry.computeVertexNormals();
-			geometry.attributes.life.needsUpdate = true;
-			renderer.render( scene, camera );
-		}
-	</script>
-
+      
+  </script>
+ 
 </body>
 </html>
