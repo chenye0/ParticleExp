@@ -147,7 +147,6 @@
 
     //HTML
     element = document.createElement('div');
-    element.innerHTML = '';
     element.innerHTML = 'WebGL/Threejs Experiment<span>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</span>';
     element.className = 'three-div';
     var title = document.getElementById('container');
@@ -156,12 +155,6 @@
     p1 = document.getElementById('p1');
     p2 = document.getElementById('p2');
     p3 = document.getElementById('p3');
-    // p1.innerHTML = '<img src="Assets/thumbnails/p1.png"></img>';
-    // p2.innerHTML = '<img src="Assets/thumbnails/p2.png"></img>';
-    // p3.innerHTML = '<img src="Assets/thumbnails/p3.png"></img> ';
-    // // p1.className = 'thumbnail';
-    // p2.className = 'thumbnail';
-    // p3.className = 'thumbnail';
 
     //CSS Object
     div = new THREE.CSS3DObject(element);
@@ -171,7 +164,6 @@
     title = new THREE.CSS3DObject(title);
     bg = new THREE.CSS3DObject(bg);
     // div.rotation.y = Math.PI;
-    //scene2.add(div);
     title.position.set(0, 150 , -10);
     p1.position.set(-200,-50,-10);
     p2.position.set(340,-70,-10);
@@ -198,13 +190,6 @@
     renderer.render(scene, camera);
     // controls.up date();
   }
-
-
-  // window.addEventListener('scroll', function(e) {
-  //   console.log("e");
-
-  // });
-
       
   </script>
  
