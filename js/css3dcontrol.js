@@ -487,7 +487,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		// rotating across whole screen goes 360 degrees around
 		//rotateLeft( Math.PI * 0.2 * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
-		sphericalDelta.theta = - spherical.theta + Math.PI * 0.3 * rotateDelta.x / element.clientWidth;
+		sphericalDelta.theta = - spherical.theta + Math.PI * 0.25 * rotateDelta.x / element.clientWidth;
 		sphericalDelta.phi = - spherical.phi + Math.PI * 0.1 * rotateDelta.y / element.clientHeight + Math.PI/2;
 		// console.log(rotateStart,rotateEnd);
 		// rotating up and down along whole screen attempts to go 360, but limited to 180
@@ -698,7 +698,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	//
 
 	function onMouseDown( event ) {
-
 		if ( scope.enabled === false ) return;
 
 		event.preventDefault();
@@ -759,12 +758,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		handleMouseUp( event );
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		// document.removeEventListener( 'mousemove', onMouseMove, false );
+		//document.removeEventListener( 'mouseup', onMouseUp, false );
 
-		scope.dispatchEvent( endEvent );
+		//scope.dispatchEvent( endEvent );
 
-		state = STATE.NONE;
+		//state = STATE.NONE;
 
 	}
 
@@ -906,7 +905,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
 
-	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
+	//scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	scope.domElement.addEventListener( 'mousemove', onMouseMove, false );
 	scope.domElement.addEventListener( 'wheel', onMouseWheel, false );
 

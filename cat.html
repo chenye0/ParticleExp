@@ -27,6 +27,7 @@
 				overflow: hidden;
 				background: #5963bd;
 			}
+			
 			a {
 				color: #fff;
 			}
@@ -44,7 +45,6 @@
 	</head>
 
 	<body>
-		<button type="button" onclick="switchScene()">Switch Scene</button>
 		<div id="container"></div>
 
 		<script src="js/three.min.js"></script>
@@ -170,27 +170,28 @@
 			pointLight = new THREE.PointLight( 0xffcc00, 1, 10 );
 			pointLight.position.set( 10, 10, 10);
 			
-		shadowLight = new THREE.DirectionalLight(0xffffff, .5);
-		shadowLight.position.set(100, 100, 100);
-		shadowLight.castShadow = true;
-		shadowLight.shadowDarkness = 0.2;
-		shadowLight.shadowMapWidth = shadowLight.shadowMapHeight = 2048;
-		shadowLight.shadow.camera.near = 0.5;       // default
-		shadowLight.shadow.camera.far = 500;      // default
-		shadowLight.shadowCameraLeft = -100;
-		shadowLight.shadowCameraRight = 100;
-		shadowLight.shadowCameraTop = 100;
-		shadowLight.shadowCameraBottom = -100;
+			shadowLight = new THREE.DirectionalLight(0xffffff, .5);
+			shadowLight.position.set(100, 100, 100);
+			shadowLight.castShadow = true;
+			shadowLight.shadowDarkness = 0.2;
+			shadowLight.shadowMapWidth = shadowLight.shadowMapHeight = 2048;
+			shadowLight.shadow.camera.near = 0.5;       // default
+			shadowLight.shadow.camera.far = 500;      // default
+			shadowLight.shadowCameraLeft = -100;
+			shadowLight.shadowCameraRight = 100;
+			shadowLight.shadowCameraTop = 100;
+			shadowLight.shadowCameraBottom = -100;
 
-//Create a helper for the shadow camera (optional)
-var helper = new THREE.CameraHelper( shadowLight.shadow.camera );
-//scene.add( helper );
+	//Create a helper for the shadow camera (optional)
+	var helper = new THREE.CameraHelper( shadowLight.shadow.camera );
+	//scene.add( helper );
 
 			scene.add(hemisphereLight);
 			 var elight = new THREE.AmbientLight(0xffffff, 0.2);
   //scene.add(elight);
 			scene.add(shadowLight);
 		}
+
 		function createGround() {
 			var Texloader = new THREE.TextureLoader();
 			// var bump = THREE.ImageUtils.loadTexture("Assets/noise.jpg");
@@ -411,7 +412,7 @@ var helper = new THREE.CameraHelper( shadowLight.shadow.camera );
 			scene = new THREE.Scene();
 			createGround();
 			createSky();
-			createParticle();
+			//createParticle();
 			createLights();
 			load3dmodel();
 			renderer = new THREE.WebGLRenderer({ 

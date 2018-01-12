@@ -17,10 +17,9 @@
         color: white;
       }
 
-      #container img {
-        position: absolute;
-        top: -200px;
-        left: -40%;
+      img {
+        width: 100%;
+        height: auto;
       }
       p {
         font-size: 0.75em;
@@ -31,11 +30,13 @@
       }
 
       #layerbg {
-        width: 2000px;
+        width: 3000px;
         height: 1800px;
-        background-color: #101429;
-/*      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232d324b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");*/
-        background-image: url('Assets/background.jpg');
+        /*background-color: #101429;*/
+        background-color: #03031a;
+        background-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB3aWR0aD0nNjAwJyBoZWlnaHQ9JzYwMCcgdmlld0JveD0nMCAwIDE1MCAxNTAnPgo8ZmlsdGVyIGlkPSdpJyB4PScwJyB5PScwJz4KCTxmZUNvbG9yTWF0cml4IHR5cGU9J21hdHJpeCcgdmFsdWVzPScxIDAgMCAwIDAgIDAgMSAwIDAgMCAgMCAwIDEgMCAwICAwIDAgMCAwIDAnIC8+CjwvZmlsdGVyPgo8ZmlsdGVyIGlkPSduJyB4PScwJyB5PScwJz4KCTxmZVR1cmJ1bGVuY2UgdHlwZT0ndHVyYnVsZW5jZScgYmFzZUZyZXF1ZW5jeT0nLjcnIHJlc3VsdD0nZnV6eicgbnVtT2N0YXZlcz0nMicgc3RpdGNoVGlsZXM9J3N0aXRjaCcvPgoJPGZlQ29tcG9zaXRlIGluPSdTb3VyY2VHcmFwaGljJyBpbjI9J2Z1enonIG9wZXJhdG9yPSdhcml0aG1ldGljJyBrMT0nMCcgazI9JzEnIGszPSctMTMyLjQ1JyBrND0nLjAxJyAvPgo8L2ZpbHRlcj4KPHJlY3Qgd2lkdGg9JzEwMiUnIGhlaWdodD0nMTAyJScgZmlsbD0nIzAzMDMxYScvPgo8cmVjdCB4PSctMSUnIHk9Jy0xJScgd2lkdGg9JzEwMiUnIGhlaWdodD0nMTAyJScgZmlsbD0nI2ZmZicgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScxJy8+CjxyZWN0IHg9Jy0xJScgeT0nLTElJyB3aWR0aD0nMTAyJScgaGVpZ2h0PScxMDIlJyBmaWxsPScjMDMwMzFhJyBmaWx0ZXI9J3VybCgjaSknIG9wYWNpdHk9JzEnLz4KPC9zdmc+);
+
+        /*background-image: url('Assets/background.jpg');*/
       }
 
       .three-div{
@@ -69,7 +70,6 @@
 
   <body>
     <div id="container">
-      <!-- <img src="Assets/line2.png"></img> -->
       <h2>WebGL/Threejs Experiment</h2>
       <p>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</p>
     </div>
@@ -91,7 +91,7 @@
     <script src="js/three.min.js"></script>
     <script type="text/javascript" src="js/css3dcontrol.js"></script>
     <script src="js/Detector.js"></script>
-    <!-- <script src="js/TweenMax.min.js"></script> -->
+    <script src="js/TweenMax.min.js"></script>
     <script src="js/CSS3DRender.js"></script>
     <script>
     var camera;
@@ -103,21 +103,23 @@
     var scene2;
     var renderer2;
     var div;
+    var WIDTH = window.innerWidth;
 
     init();
+// TweenLite.ticker.addEventListener("tick", render);
     animate();
 
-    function init() {
+  function init() {
     //camera
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.set(0, 0, 600);
+    // camera.animAngle = 0;
 
     // controls
     controls = new THREE.OrbitControls(camera);
     controls.rotateSpeed = 0.1;
     controls.enableZoom = false;
     // controls.autoRotate = true;
-
 
     controls.target.set(0, 0, 0);
     // controls.panSpeed = 0.8;
@@ -128,8 +130,8 @@
     //TorusGeometry
     torus = new THREE.Mesh(new THREE.TorusGeometry(120, 60, 40, 40),
                  new THREE.MeshNormalMaterial());
-    torus.position.set(0, 0, 0);
-    //scene.add(torus);
+    torus.position.set(0, 0, 100);
+    scene.add(torus);
 
     //HemisphereLight
     light = new THREE.HemisphereLight(0xffbf67, 0x15c6ff);
@@ -146,6 +148,17 @@
     scene2 = new THREE.Scene();
 
     //HTML
+    var stars= [];
+    for (var j =0; j<15; j++) {
+      var e = document.createElement('div');
+      e.innerHTML='<img src="Assets/star1.png"></img>'
+      var s = new THREE.CSS3DObject(e);
+      s.position.set(0, getRandom(-100,200) , -300);
+      scene2.add(s);
+      stars.push(s);
+    }
+  
+    // star_e.innerHTML='<img src="Assets/star1.png"></img>'
     element = document.createElement('div');
     element.innerHTML = 'WebGL/Threejs Experiment<span>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</span>';
     element.className = 'three-div';
@@ -163,12 +176,24 @@
     p3 = new THREE.CSS3DObject(p3);
     title = new THREE.CSS3DObject(title);
     bg = new THREE.CSS3DObject(bg);
-    // div.rotation.y = Math.PI;
     title.position.set(0, 150 , -10);
-    p1.position.set(-200,-50,-10);
-    p2.position.set(340,-70,-10);
-    p3.position.set(50, -130, -10);
     bg.position.set(0,-100,-400);
+
+    // star.position.set(0, 200 , -300)
+
+    var pos = WIDTH /7;
+    p1.position.set(-pos,-50,-10);
+    p2.position.set(pos + 100,-70,-10);
+    p3.position.set(50, -130, -10);
+
+    if (WIDTH < 600) {
+      p1.position.set(-pos +40,-50,-10);
+      p2.position.set(pos +80,-70,-10);
+      p3.position.set(50, -300, -10);
+      camera.position.set(0, -100, 800);
+      controls.target.set(0, -100, 0);
+    }
+
     scene2.add(p1);
     scene2.add(p2);
     scene2.add(p3);
@@ -182,13 +207,36 @@
     renderer2.domElement.style.backgroundColor = '#101429';
     renderer2.domElement.style.top = 0;
     document.body.appendChild(renderer2.domElement);
+
+
+    ( function grow(){
+        stars.forEach (star => {
+          // TweenMax.from(star.scale, getRandom(0,2), { repeat: 1, x:1, y: 1, ease:Power2.easeInOut});
+          star.position.y = getRandom(-400, 400);
+          star.position.x = getRandom(-400, 400);
+          TweenMax.from(star.scale, getRandom(1,8), { x:0, y: 0, ease:Power2.easeInOut});
+        })
+        TweenMax.to( window, 5, {
+           onComplete: grow 
+        } );
+    } )();
   }
 
+  // star.position.set(0,400,200);
+  // TweenMax.to(star.position, 1, { repeat:-1, repeatDelay:0.5, ease:Linear.easeNone});
+
+  // setTimeout(function(){ tween; }, 1000);
+
   function animate() {
+
     requestAnimationFrame(animate);
     renderer2.render(scene2, camera);
     renderer.render(scene, camera);
-    // controls.up date();
+    // controls.update();
+  }
+
+  function getRandom(min, max) {
+      return Math.random() * (max - min) + min;
   }
       
   </script>
