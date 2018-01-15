@@ -10,7 +10,7 @@
 				margin: 0px;
 				overflow: hidden;
 			}
-			#info {
+		#info {
 				position: absolute;
 				top: 0px;
 				width: 100%;
@@ -25,7 +25,7 @@
 				width: 100%;
 				height: 100%;
 				overflow: hidden;
-				background: linear-gradient(#20202c, #515175);
+				/*background: linear-gradient(#20202c, #515175);*/
 			}
 			a {
 				color: #fff;
@@ -171,15 +171,35 @@
 			  vec4 sample = texture2D(texture, vUV);
 			  gl_FragColor = vec4(sample.xyz, sample.w);
 			}
-		</script>  
+		</script> 
+		<script type="x-shader/x-vertex" id="svertexShader">
+			varying vec3 vWorldPosition;
+			void main() {
+				vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+				vWorldPosition = worldPosition.xyz;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			}
+		</script>
+
+		<script type="x-shader/x-fragment" id="sfragmentShader">
+			uniform vec3 topColor;
+			uniform vec3 bottomColor;
+			uniform float offset;
+			uniform float exponent;
+			varying vec3 vWorldPosition;
+			void main() {
+				float h = normalize( vWorldPosition + offset ).y;
+				gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+			}
+		</script> 
 
 		<script>
 
 		if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-		var renderer, scene, camera, stats, pointLight;
+		var renderer, scene, camera, stats, pointLight, hemiLight;
 
-		var particleSystem, uniforms, geometry, seaPlane, skyuniforms,skyBox, terrain;
+		var particleSystem, uniforms, geometry, seaPlane, skyuniforms,skyBox, sky, terrain;
 		
 		var group = new THREE.Group();
 		var texture = ['Assets/snowflakes.png', 'Assets/leaf4.png', 'Assets/raindrop.png', 'Assets/flower.png'];
@@ -190,38 +210,36 @@
 
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
-
+		var season = [0x20202c, 0x7ec0ee, 0xe8b272, 0xFFC0CB];
 		init();
 		animate();
+
 		function createLights() {
-			hemisphereLight = new THREE.HemisphereLight(0xffffff,0xffffff, .4);
-			pointLight = new THREE.PointLight( 0xffcc00, 1, 100 );
-			pointLight.position.set( 50, 50, 50);
-			hemisphereLight.position.set( 0, 0, 0);
-			shadowLight = new THREE.DirectionalLight(0xffffff, 0.5);
+			hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.2 );
+			hemiLight.color= new THREE.Color(season[0]);
+			// hemiLight.groundColor= new THREE.Color(season[0]);;
+			hemiLight.position.set( 0, 50, 0 );
+			hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+			// scene.add( hemiLightHelper );
+
+			// hemisphereLight = new THREE.HemisphereLight(0xffffff,0xffffff, .4);
+			// hemisphereLight.position.set( 0, 0, 0);
+			shadowLight = new THREE.DirectionalLight(0xffffff, 1);
 			shadowLight.color.setHSL( 0.1, 1, 0.95 );
 			shadowLight.position.set(-15, 20, 20);
 			shadowLight.target.position.set(0, 20, 0);
 			shadowLight.castShadow = true;
+			scene.add( hemiLight );
 
-			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			var material = new THREE.MeshBasicMaterial( {color: 0xffcc00} );
-			var lamp = new THREE.Mesh( geometry, material );
-			lamp.position.set(50, 50, 50);
-			//scene.add( lamp );
-			//scene.add(pointLight);
-			scene.add(hemisphereLight);
 			scene.add(shadowLight);
 		}
 		function createGround() {
 			var Texloader = new THREE.TextureLoader();
 			// var bump = THREE.ImageUtils.loadTexture("Assets/noise.jpg");
-			var snowmaterial = new THREE.MeshLambertMaterial({
-				color: 0xffffff,
-				// bumpMap: bump
-			});
-			var seageom = new THREE.PlaneBufferGeometry(1000, 1000, 128, 128);
-			terrain = new THREE.Mesh(seageom, snowmaterial);
+			var groundMat = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+			// groundMat.color.setHSL( 0.095, 1, 0.75 );
+			var seageom = new THREE.PlaneBufferGeometry(2000, 2000, 128, 128);
+			terrain = new THREE.Mesh(seageom, groundMat);
 			// get the vertices
 			// const Perlin = require('./perlin.js').Perlin;
 			var perlin = new SimplexNoise(); 
@@ -363,7 +381,6 @@
 
 		}
 		function load3dmodel() {
-			// import tree
 			var loader = new THREE.ObjectLoader();
 			loader.load('3dmodels/sampletree.json', function(loadedObj, materials) {
 			    var Texloader = new THREE.TextureLoader();
@@ -373,32 +390,46 @@
 				    texture.repeat.set( 2, 2 );
 				} );
 	
-				// console.log(loadedObj);
 				var tree = loadedObj.getObjectByName("tree.001");
-				// // var tree1 = loadedObj.getObjectByName("tree.002");
   				var treematerial = new THREE.MeshBasicMaterial({transparent: false, map: texture});
 			    tree.material = treematerial;
-			    // console.log(tree);
+			    tree.castShadow = true;
 			    scene.add(tree);
 			});
 
 		}
 		function createSky() {
-			var skyGeo = new THREE.SphereGeometry(300, 40, 25); 
-			skyuniforms = {  
-			  texture: { type: 't', value: THREE.ImageUtils.loadTexture('Assets/winter.jpg') }
-			};
-			var skymat = new THREE.ShaderMaterial( {  
-				uniforms:       skyuniforms,
-				vertexShader:   document.getElementById('sky-vertex').textContent,
-				fragmentShader: document.getElementById('sky-fragment').textContent
-			});
+			// var skyGeo = new THREE.SphereGeometry(300, 40, 25); 
+			// skyuniforms = {  
+			//   texture: { type: 't', value: THREE.ImageUtils.loadTexture('Assets/winter.jpg') }
+			// };
+			// var skymat = new THREE.ShaderMaterial( {  
+			// 	uniforms:       skyuniforms,
+			// 	vertexShader:   document.getElementById('sky-vertex').textContent,
+			// 	fragmentShader: document.getElementById('sky-fragment').textContent
+			// });
 
-			skyBox = new THREE.Mesh(skyGeo, skymat);
-		    skyBox.scale.set(-1, 1, 1);  
-			skyBox.eulerOrder = 'XZY';  
-			skyBox.renderDepth = 1000.0;  
-			scene.add(skyBox); 
+			// skyBox = new THREE.Mesh(skyGeo, skymat);
+		 //    skyBox.scale.set(-1, 1, 1);  
+			// skyBox.eulerOrder = 'XZY';  
+			// skyBox.renderDepth = 1000.0;  
+			// // scene.add(skyBox); 
+
+			var vertexShader = document.getElementById( 'svertexShader' ).textContent;
+			var fragmentShader = document.getElementById( 'sfragmentShader' ).textContent;
+			skyuniforms = {
+				topColor:    { value: new THREE.Color( 0x0077ff ) },
+				bottomColor: { value: new THREE.Color( 0xffffff ) },
+				offset:      { value: 33 },
+				exponent:    { value: 0.6 }
+			};
+		
+			skyuniforms.topColor.value.copy( hemiLight.color );
+			// scene.fog.color.copy( uniforms.bottomColor.value );
+			var skyGeo = new THREE.SphereGeometry( 2000, 32, 15 );
+			var skyMat = new THREE.ShaderMaterial( { vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: skyuniforms, side: THREE.BackSide } );
+			sky = new THREE.Mesh( skyGeo, skyMat );
+			scene.add( sky );
 		}
 		function switchScene() {
 			console.log(Idx);
@@ -439,10 +470,10 @@
 						}
 					}
 			        break;
-			     case 3: //raindrop
-			        uniforms.winddir.value = new THREE.Vector3( 0, 0, 0);
+			     case 3: //flower
+			        uniforms.winddir.value = new THREE.Vector3( 0.3, 1.5, 0);
 			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
-						var initpos = [getRandom(-5.0, 5.0),20,getRandom(-5.0, 5.0)];
+						var initpos = [getRandom(-10.0, 10.0),getRandom(18.0, 20.0),getRandom(-5.0, 5.0)];
 						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
 							reference[ i6 + j3	  ] = initpos[0];
 							reference[ i6 + j3 + 1] = initpos[1];
@@ -452,12 +483,14 @@
 			        break;
 			}
 			uniforms.texture.value = new THREE.TextureLoader().load( texture[Idx] );
-			skyuniforms.texture.value = new THREE.TextureLoader().load( skytexture[Idx] );
+			// skyuniforms.texture.value = new THREE.TextureLoader().load( skytexture[Idx] );
 			
 			//TweenMax.to(skyBox.material, 0, { opacity: 0 });
 			geometry.attributes.refer.needsUpdate = true;
 			particleSystem.material.needsUpdate = true;
-			skyBox.material.needsUpdate = true;
+			hemiLight.color= new THREE.Color(season[Idx]);
+			skyuniforms.topColor.value.copy( hemiLight.color );
+			sky.material.needsUpdate = true;
 		}
 		function getRandom(min, max) {
 		    return Math.random() * (max - min) + min;
@@ -466,14 +499,14 @@
 		function init() {
 			camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.1, 10000 );
 			camera.position.x = -250;
-			camera.position.y = 20;
-
+			camera.position.y = 50;
 			scene = new THREE.Scene();
+
+			createLights();
 			createGround();
 			createSky();
 			load3dmodel();
 			createParticle();
-			createLights();
 			
 			renderer = new THREE.WebGLRenderer({ 
 				alpha: true, 
@@ -486,11 +519,15 @@
 			container.appendChild( renderer.domElement );
 			
 			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-			cameraControls.target.set(0, 30, 0);
+			cameraControls.target.set(0, 40, 0);
+			// camera.position.x = -250;
+			// camera.position.y = 50;
+
 			cameraControls.minPolarAngle = Math.PI/4; // radians
-			cameraControls.maxPolarAngle = Math.PI/2 + 0.1; // radians
-			cameraControls.minDistance = 10;
+			cameraControls.maxPolarAngle = Math.PI/2; // radians
+			cameraControls.minDistance = 60;
 			cameraControls.maxDistance = 300;
+			cameraControls.enableZoom = false;
 		
 			window.addEventListener( 'resize', onWindowResize, false );
 

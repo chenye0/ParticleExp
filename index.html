@@ -11,6 +11,7 @@
         margin: 0px;
         overflow: hidden;
         background-color: #101429;
+        font-family: Arial, Helvetica, sans-serif;
       }
       #container {
         width: 300px;
@@ -26,6 +27,7 @@
       }
       h2 {
         /*color: rgb(143,28,67);*/
+        font-family: Georgia, Helvetica, Sans-serif;
         color: #87E8E9
       }
 
@@ -42,7 +44,7 @@
       .three-div{
         background-color: none;
         width: 300px;
-        font-family: Georigia, Helvetica, Sans-serif;
+        /*font-family: Georigia, Helvetica, Sans-serif;*/
         font-size: 0.2em;
         line-height: 1.5em;
         padding: 1em;
@@ -50,6 +52,11 @@
       .thumbnail {
         width: 300px;
         color: white;
+        position: absolute;
+      }
+      a {
+        width: 100%;
+        height: 100%;
       }
       .thumbnail p {
         width: 180px;
@@ -65,35 +72,54 @@
       .thumbnail img:hover {
         transform: scale(1.05);
       }
+      #hideAll {
+        font-family: 'Roboto Mono', monospace, serif;
+        display: flex;
+        color: white;
+        font-size: 36px;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        left: 0px; 
+        right: 0px; 
+        top: 0px; 
+        bottom: 0px; 
+        background-color: #333;
+        background-image: url('Assets/background.jpg');
+        z-index: 99; /* Higher than anything else in the document */
+       }
     </style>
   </head>
-
   <body>
+    <div style="display: none" id="hideAll"><p>Loading Assets...</p></div>
     <div id="container">
       <h2>WebGL/Threejs Experiment</h2>
-      <p>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</p>
+      <p>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with creating my own 3D content.</p>
     </div>
-    <div id="layerbg">
-
-    </div>
+    <div id="layerbg"></div>
     <div class="thumbnail" id='p3'>
       <a href='particle.html'><img src="Assets/thumbnails/particle.png"></img></a>
       <p>Threejs animated scenes powered with webGL particle shaders.</p>
     </div>
     <div class="thumbnail" id='p1'>
       <a href='cat.html'><img src="Assets/thumbnails/p1.png"></img></a>
-      <p>Nyanko-sensei(from anime Natsume's Book of Friends)</p>
+      <p>Nyanko-sensei(from anime Natsume's Book of Friends), modeled with Blender3D.</p>
     </div>
     <div class="thumbnail" id='p2'>
       <a href='https://chenye0.github.io/threejsPlay'><img src="Assets/thumbnails/p2.png"></img></a>
       <p>A palm island created with Blender3D, animated with Threejs.</p>
     </div>
+    <script type="text/javascript">
+       document.getElementById("hideAll").style.display = "flex";
+    </script> 
     <script src="js/three.min.js"></script>
     <script type="text/javascript" src="js/css3dcontrol.js"></script>
     <script src="js/Detector.js"></script>
     <script src="js/TweenMax.min.js"></script>
     <script src="js/CSS3DRender.js"></script>
     <script>
+    if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
     var camera;
     var controls;
     var scene;
@@ -103,142 +129,135 @@
     var scene2;
     var renderer2;
     var div;
-    var WIDTH = window.innerWidth;
+    var WIDTH = window.innerWidth, Height = window.innerHeight;
+
 
     init();
-// TweenLite.ticker.addEventListener("tick", render);
     animate();
 
-  function init() {
-    //camera
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.set(0, 0, 600);
-    // camera.animAngle = 0;
+    function init() {
+      //camera
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+      camera.position.set(0, 0, 600);
+      // camera.animAngle = 0;
 
-    // controls
-    controls = new THREE.OrbitControls(camera);
-    controls.rotateSpeed = 0.1;
-    controls.enableZoom = false;
-    // controls.autoRotate = true;
+      // controls
+      controls = new THREE.OrbitControls(camera);
+      controls.rotateSpeed = 0.1;
+      controls.enableZoom = false;
+      controls.minPolarAngle = Math.PI/4; // radians
+      controls.maxPolarAngle = Math.PI/1.5; // radians
+      controls.minAzimuthAngle = - Math.PI/9;; // radians
+      controls.maxAzimuthAngle = Math.PI/9;; // radians
+      // controls.autoRotate = true;
 
-    controls.target.set(0, 0, 0);
-    // controls.panSpeed = 0.8;
+      controls.target.set(0, 0, 0);
+      // controls.panSpeed = 0.8;
 
-    //Scene
-    scene = new THREE.Scene();
+      //Scene
+      scene = new THREE.Scene();
 
-    //TorusGeometry
-    torus = new THREE.Mesh(new THREE.TorusGeometry(120, 60, 40, 40),
-                 new THREE.MeshNormalMaterial());
-    torus.position.set(0, 0, 100);
-    scene.add(torus);
+      //HemisphereLight
+      light = new THREE.HemisphereLight(0xffbf67, 0x15c6ff);
+      scene.add(light);
 
-    //HemisphereLight
-    light = new THREE.HemisphereLight(0xffbf67, 0x15c6ff);
-    scene.add(light);
+      //WebGL Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setClearColor(0xffffff, 1)
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.domElement.style.zIndex = 5;
+      document.body.appendChild(renderer.domElement);
 
-    //WebGL Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor(0xffffff, 1)
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.domElement.style.zIndex = 5;
-    document.body.appendChild(renderer.domElement);
+      //CSS3D Scene
+      scene2 = new THREE.Scene();
 
-    //CSS3D Scene
-    scene2 = new THREE.Scene();
+      //HTML
+      var stars= [];
+      for (var j =0; j<15; j++) {
+        var e = document.createElement('div');
+        e.innerHTML='<img src="Assets/star1.png"></img>'
+        var s = new THREE.CSS3DObject(e);
+        s.position.set(getRandom(-WIDTH/2,WIDTH/2) , getRandom(-100,200) , -300);
+        scene2.add(s);
+        stars.push(s);
+      }
+    
 
-    //HTML
-    var stars= [];
-    for (var j =0; j<15; j++) {
-      var e = document.createElement('div');
-      e.innerHTML='<img src="Assets/star1.png"></img>'
-      var s = new THREE.CSS3DObject(e);
-      s.position.set(0, getRandom(-100,200) , -300);
-      scene2.add(s);
-      stars.push(s);
+      var title = document.getElementById('container');
+      var bg = document.getElementById('layerbg');
+      p1 = document.getElementById('p1');
+      p2 = document.getElementById('p2');
+      p3 = document.getElementById('p3');
+
+      //CSS Object
+      p1 = new THREE.CSS3DObject(p1);
+      p2 = new THREE.CSS3DObject(p2);
+      p3 = new THREE.CSS3DObject(p3);
+      title = new THREE.CSS3DObject(title);
+      bg = new THREE.CSS3DObject(bg);
+
+      var pos = WIDTH /7;
+      title.position.set(0, 150 , -10);
+      p1.position.set(-pos, -50, -12);
+      p2.position.set(pos + 100, -Height/10, 0);
+      p3.position.set(50, -Height/6, -10);
+
+      bg.position.set(0,-100,-400);
+
+      if (WIDTH < 600) {
+        p1.position.set(-pos +40,-50,-10);
+        p2.position.set(pos +80,-70,-10);
+        p3.position.set(50, -300, -10);
+        camera.position.set(0, -100, 800);
+        controls.target.set(0, -100, 0);
+      }
+
+      scene2.add(p1);
+      scene2.add(p2);
+      scene2.add(p3);
+      scene2.add(title);
+      scene2.add(bg);
+
+      //CSS3D Renderer
+      renderer2 = new THREE.CSS3DRenderer();
+      renderer2.setSize(window.innerWidth, window.innerHeight);
+      renderer2.domElement.style.position = 'absolute';
+      renderer2.domElement.style.backgroundColor = '#101429';
+      renderer2.domElement.style.top = 0;
+      document.body.appendChild(renderer2.domElement);
+
+
+      ( function grow(){
+          stars.forEach ((star,i) => {
+            // TweenMax.to(star.scale, getRandom(0,2), { repeat: 1, x:1, y: 1, ease:Power2.easeInOut});
+            if (Math.random() >= 0.5) {
+              star.position.y = getRandom(-400, 400);
+              star.position.x = getRandom(-400, 400);
+            }
+
+            TweenMax.to(star.scale, getRandom(0,2), { repeat: 1, yoyo: true, x:0, y: 0, ease:Power2.easeInOut});
+          })
+          TweenMax.to( window, 4, {
+             onComplete: grow 
+          } );
+      } )();
     }
-  
-    // star_e.innerHTML='<img src="Assets/star1.png"></img>'
-    element = document.createElement('div');
-    element.innerHTML = 'WebGL/Threejs Experiment<span>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with learning and creating my own 3D content.</span>';
-    element.className = 'three-div';
-    var title = document.getElementById('container');
-    var bg = document.getElementById('layerbg');
-    //Projects
-    p1 = document.getElementById('p1');
-    p2 = document.getElementById('p2');
-    p3 = document.getElementById('p3');
 
-    //CSS Object
-    div = new THREE.CSS3DObject(element);
-    p1 = new THREE.CSS3DObject(p1);
-    p2 = new THREE.CSS3DObject(p2);
-    p3 = new THREE.CSS3DObject(p3);
-    title = new THREE.CSS3DObject(title);
-    bg = new THREE.CSS3DObject(bg);
-    title.position.set(0, 150 , -10);
-    bg.position.set(0,-100,-400);
-
-    // star.position.set(0, 200 , -300)
-
-    var pos = WIDTH /7;
-    p1.position.set(-pos,-50,-10);
-    p2.position.set(pos + 100,-70,-10);
-    p3.position.set(50, -130, -10);
-
-    if (WIDTH < 600) {
-      p1.position.set(-pos +40,-50,-10);
-      p2.position.set(pos +80,-70,-10);
-      p3.position.set(50, -300, -10);
-      camera.position.set(0, -100, 800);
-      controls.target.set(0, -100, 0);
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer2.render(scene2, camera);
+      renderer.render(scene, camera);
+      // controls.update();
     }
 
-    scene2.add(p1);
-    scene2.add(p2);
-    scene2.add(p3);
-    scene2.add(title);
-    scene2.add(bg);
-
-    //CSS3D Renderer
-    renderer2 = new THREE.CSS3DRenderer();
-    renderer2.setSize(window.innerWidth, window.innerHeight);
-    renderer2.domElement.style.position = 'absolute';
-    renderer2.domElement.style.backgroundColor = '#101429';
-    renderer2.domElement.style.top = 0;
-    document.body.appendChild(renderer2.domElement);
-
-
-    ( function grow(){
-        stars.forEach (star => {
-          // TweenMax.from(star.scale, getRandom(0,2), { repeat: 1, x:1, y: 1, ease:Power2.easeInOut});
-          star.position.y = getRandom(-400, 400);
-          star.position.x = getRandom(-400, 400);
-          TweenMax.from(star.scale, getRandom(1,8), { x:0, y: 0, ease:Power2.easeInOut});
-        })
-        TweenMax.to( window, 5, {
-           onComplete: grow 
-        } );
-    } )();
-  }
-
-  // star.position.set(0,400,200);
-  // TweenMax.to(star.position, 1, { repeat:-1, repeatDelay:0.5, ease:Linear.easeNone});
-
-  // setTimeout(function(){ tween; }, 1000);
-
-  function animate() {
-
-    requestAnimationFrame(animate);
-    renderer2.render(scene2, camera);
-    renderer.render(scene, camera);
-    // controls.update();
-  }
-
-  function getRandom(min, max) {
-      return Math.random() * (max - min) + min;
-  }
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
       
+  </script>
+  <script type="text/javascript">
+    window.onload = function() { 
+      document.getElementById("hideAll").style.display = "none"; }
   </script>
  
 </body>
