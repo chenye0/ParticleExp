@@ -136,6 +136,19 @@
     animate();
 
     function init() {
+
+      var viewer = document.getElementById( 'viewer' );
+      console.log(viewer);
+
+// iOS iframe auto-resize workaround
+
+if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
+
+    viewer.style.width = getComputedStyle( viewer ).width;
+    viewer.style.height = getComputedStyle( viewer ).height;
+    viewer.setAttribute( 'scrolling', 'no' );
+
+}
       //camera
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
       camera.position.set(0, 0, 600);
@@ -146,7 +159,7 @@
       controls.rotateSpeed = 0.1;
       controls.enableZoom = false;
       controls.minPolarAngle = Math.PI/4; // radians
-      controls.maxPolarAngle = Math.PI/1.5; // radians
+      controls.maxPolarAngle = Math.PI/2; // radians
       controls.minAzimuthAngle = - Math.PI/9;; // radians
       controls.maxAzimuthAngle = Math.PI/9;; // radians
       // controls.autoRotate = true;
