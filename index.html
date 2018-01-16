@@ -136,19 +136,6 @@
     animate();
 
     function init() {
-
-      var viewer = document.getElementById( 'viewer' );
-      console.log(viewer);
-
-// iOS iframe auto-resize workaround
-
-if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent ) ) {
-
-    viewer.style.width = getComputedStyle( viewer ).width;
-    viewer.style.height = getComputedStyle( viewer ).height;
-    viewer.setAttribute( 'scrolling', 'no' );
-
-}
       //camera
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
       camera.position.set(0, 0, 600);
