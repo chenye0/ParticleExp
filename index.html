@@ -33,12 +33,10 @@
 
       #layerbg {
         width: 3000px;
-        height: 1800px;
+        height: 2000px;
         /*background-color: #101429;*/
         background-color: #03031a;
         background-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB3aWR0aD0nNjAwJyBoZWlnaHQ9JzYwMCcgdmlld0JveD0nMCAwIDE1MCAxNTAnPgo8ZmlsdGVyIGlkPSdpJyB4PScwJyB5PScwJz4KCTxmZUNvbG9yTWF0cml4IHR5cGU9J21hdHJpeCcgdmFsdWVzPScxIDAgMCAwIDAgIDAgMSAwIDAgMCAgMCAwIDEgMCAwICAwIDAgMCAwIDAnIC8+CjwvZmlsdGVyPgo8ZmlsdGVyIGlkPSduJyB4PScwJyB5PScwJz4KCTxmZVR1cmJ1bGVuY2UgdHlwZT0ndHVyYnVsZW5jZScgYmFzZUZyZXF1ZW5jeT0nLjcnIHJlc3VsdD0nZnV6eicgbnVtT2N0YXZlcz0nMicgc3RpdGNoVGlsZXM9J3N0aXRjaCcvPgoJPGZlQ29tcG9zaXRlIGluPSdTb3VyY2VHcmFwaGljJyBpbjI9J2Z1enonIG9wZXJhdG9yPSdhcml0aG1ldGljJyBrMT0nMCcgazI9JzEnIGszPSctMTMyLjQ1JyBrND0nLjAxJyAvPgo8L2ZpbHRlcj4KPHJlY3Qgd2lkdGg9JzEwMiUnIGhlaWdodD0nMTAyJScgZmlsbD0nIzAzMDMxYScvPgo8cmVjdCB4PSctMSUnIHk9Jy0xJScgd2lkdGg9JzEwMiUnIGhlaWdodD0nMTAyJScgZmlsbD0nI2ZmZicgZmlsdGVyPSd1cmwoI24pJyBvcGFjaXR5PScxJy8+CjxyZWN0IHg9Jy0xJScgeT0nLTElJyB3aWR0aD0nMTAyJScgaGVpZ2h0PScxMDIlJyBmaWxsPScjMDMwMzFhJyBmaWx0ZXI9J3VybCgjaSknIG9wYWNpdHk9JzEnLz4KPC9zdmc+);
-
-        /*background-image: url('Assets/background.jpg');*/
       }
 
       .three-div{
@@ -97,25 +95,26 @@
       <p>Amazed by the power of webGL and the richness of the content it can bring to the web, recently I am obsessed with creating my own 3D content.</p>
     </div>
     <div id="layerbg"></div>
-    <div class="thumbnail" id='p3'>
-      <a href='particle.html'><img src="Assets/thumbnails/particle.png"></img></a>
-      <p>Threejs animated scenes powered with webGL particle shaders.</p>
-    </div>
     <div class="thumbnail" id='p1'>
       <a href='cat.html'><img src="Assets/thumbnails/p1.png"></img></a>
       <p>Nyanko-sensei(from anime Natsume's Book of Friends), modeled with Blender3D.</p>
     </div>
     <div class="thumbnail" id='p2'>
-      <a href='https://chenye0.github.io/threejsPlay'><img src="Assets/thumbnails/p2.png"></img></a>
+      <a href='particle.html'><img src="Assets/thumbnails/particle.png"></img></a>
+      <p>Threejs animated scenes powered with webGL particle shaders.</p>
+    </div>
+    <div class="thumbnail" id='p3'>
+      <a href='beach.html'><img src="Assets/thumbnails/p2.png"></img></a>
       <p>A palm island created with Blender3D, animated with Threejs.</p>
     </div>
     <script type="text/javascript">
        document.getElementById("hideAll").style.display = "flex";
     </script> 
     <script src="js/three.min.js"></script>
-    <script type="text/javascript" src="js/css3dcontrol.js"></script>
+    <!-- <script type="text/javascript" src="js/css3dcontrol.js"></script> -->
     <script src="js/Detector.js"></script>
     <script src="js/TweenMax.min.js"></script>
+    <!-- <script src="js/Tween.js"></script> -->
     <script src="js/CSS3DRender.js"></script>
     <script>
     if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
@@ -128,9 +127,8 @@
     var renderer;
     var scene2;
     var renderer2;
-    var div;
-    var WIDTH = window.innerWidth, Height = window.innerHeight;
-
+    var div, theta;
+    var WIDTH = window.innerWidth, HEIGHT = window.innerHeight;
 
     init();
     animate();
@@ -139,21 +137,8 @@
       //camera
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
       camera.position.set(0, 0, 600);
-      // camera.animAngle = 0;
-
-      // controls
-      controls = new THREE.OrbitControls(camera);
-      controls.rotateSpeed = 0.1;
-      controls.enableZoom = false;
-      controls.minPolarAngle = Math.PI/4; // radians
-      controls.maxPolarAngle = Math.PI/2; // radians
-      controls.minAzimuthAngle = - Math.PI/9;; // radians
-      controls.maxAzimuthAngle = Math.PI/9;; // radians
-      // controls.autoRotate = true;
-
-      controls.target.set(0, 0, 0);
-      // controls.panSpeed = 0.8;
-
+      camera.animAngle = Math.PI / 2;
+      camera.animAngle1 = 0;
       //Scene
       scene = new THREE.Scene();
 
@@ -181,7 +166,6 @@
         scene2.add(s);
         stars.push(s);
       }
-    
 
       var title = document.getElementById('container');
       var bg = document.getElementById('layerbg');
@@ -199,17 +183,17 @@
       var pos = WIDTH /7;
       title.position.set(0, 150 , -10);
       p1.position.set(-pos, -50, -12);
-      p2.position.set(pos + 100, -Height/10, 0);
-      p3.position.set(50, -Height/6, -10);
-
+      p2.position.set(pos + 100, -HEIGHT/10, 0);
+      p3.position.set(50, -HEIGHT/6, -10);
       bg.position.set(0,-100,-400);
 
       if (WIDTH < 600) {
-        p1.position.set(-pos +40,-50,-10);
-        p2.position.set(pos +80,-70,-10);
-        p3.position.set(50, -300, -10);
-        camera.position.set(0, -100, 800);
-        controls.target.set(0, -100, 0);
+        title.position.set(0, 250 , -10);
+        p1.position.set(-pos +40,20,-10);
+        p2.position.set(pos +80,-40,-10);
+        p3.position.set(50, -200, -10);
+        camera.position.set(0, 0, 800);
+        theta = -100;
       }
 
       scene2.add(p1);
@@ -226,7 +210,6 @@
       renderer2.domElement.style.top = 0;
       document.body.appendChild(renderer2.domElement);
 
-
       ( function grow(){
           stars.forEach ((star,i) => {
             // TweenMax.to(star.scale, getRandom(0,2), { repeat: 1, x:1, y: 1, ease:Power2.easeInOut});
@@ -236,18 +219,39 @@
             }
 
             TweenMax.to(star.scale, getRandom(0,2), { repeat: 1, yoyo: true, x:0, y: 0, ease:Power2.easeInOut});
-          })
+          });
           TweenMax.to( window, 4, {
              onComplete: grow 
           } );
       } )();
-    }
 
+      document.onmousemove = rotateonMouseMove;
+    }
+    var radius=camera.position.z, posMouse = [];;
+
+    function rotateonMouseMove(e) {
+      posMouse = [e.clientX, e.clientY];
+      var angleh = Math.PI / 2 + Math.PI * 0.07 * (event.clientX * 2 / WIDTH - 1);
+      var anglev =  80*(event.clientY * 2 / HEIGHT - 1);
+      // console.log(anglev);
+      TweenMax.to( camera, 3, {
+          animAngle: angleh,
+          animAngle1: anglev,
+          ease: Power2.easeOut,
+          onUpdate: function(){
+              camera.position.x = Math.cos( camera.animAngle ) * radius;
+              camera.position.y = camera.animAngle1;
+              camera.position.z = Math.sin( camera.animAngle ) * radius;
+              // camera.updateProjectionMatrix();
+              camera.lookAt( scene.position );                
+          }
+      } );
+    }
     function animate() {
       requestAnimationFrame(animate);
       renderer2.render(scene2, camera);
       renderer.render(scene, camera);
-      // controls.update();
+      camera.updateProjectionMatrix();
     }
 
     function getRandom(min, max) {
@@ -259,6 +263,5 @@
     window.onload = function() { 
       document.getElementById("hideAll").style.display = "none"; }
   </script>
- 
 </body>
 </html>

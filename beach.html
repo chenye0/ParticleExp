@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<style type="text/css">
+	body {
+		margin: 0;
+		padding: 0;
+	}
+	#world {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background: linear-gradient(#69C0F5, #fff);
+	}
+	#hideAll {
+		font-family: 'Roboto Mono', monospace, serif;
+		display: flex;
+		color: white;
+		font-size: 36px;
+		justify-content: center;
+		align-items: center;
+		position: fixed;
+		left: 0px; 
+		right: 0px; 
+		top: 0px; 
+		bottom: 0px; 
+		background-color: #333;
+		background-image: url('Assets/background.jpg');
+		z-index: 99; /* Higher than anything else in the document */
+	}
+	</style>
+</head>
+<body>
+	<div style="display: none" id="hideAll"><p>Loading Assets...</p></div>
+	<div id="world"></div>
+</body>
+<script type="text/javascript">
+   document.getElementById("hideAll").style.display = "flex";
+</script>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/OrbitControls.js"></script> 
+<script type="text/javascript" src="js/beach.js"></script>
+<script type="text/javascript">
+window.onload = function() { 
+  document.getElementById("hideAll").style.display = "none"; }
+</script>

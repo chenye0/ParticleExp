@@ -92,7 +92,7 @@
 			}
 
 			void main() {
-				if (pattern <1 || pattern ==3) {
+				if (pattern <1 || pattern ==2) {
 					vec3 windshift = life * windspeed * winddir;
 				    vec3 selfshift = life * selfspeed * 10.0;
 					vec3 r = life * rspeed * rotation;
@@ -107,7 +107,7 @@
 					vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
 					// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
 					gl_Position = projectionMatrix * mvPosition;
-				} else if (pattern == 2) { //raindrop/particle
+				} else if (pattern == 4) { //raindrop/particle
 					vec3 windshift = life * windspeed * winddir;
 				    vec3 selfshift = life * selfspeed;
 					vColor = customColor;
@@ -118,10 +118,9 @@
 					vec4 mvPosition = modelViewMatrix * vec4( finalPos, 1.0 );
 					// gl_PointSize = 30.0 * ( 300.0 / -mvPosition.z );
 					gl_Position = projectionMatrix * mvPosition;
-
 				}
-				else {
-					vec3 windshift = vec3 ( life * 0.1 * sin(0.3*life * winddir.x), life * winddir.z, cos(0.2*life * winddir.x) * life  * 0.1);
+				else { //flower
+					vec3 windshift = vec3 ( life * 0.1 * sin(0.3*life * winddir.x), life * winddir.z, cos(0.3*life * winddir.x) * life  * 0.1);
 				    vec3 selfshift = life * selfspeed;
 					vec3 r = life * rspeed * rotation;
 					vColor = customColor;
@@ -144,8 +143,7 @@
 
 			uniform vec3 color;
 			uniform sampler2D texture;
-
-			varying vec3 vColor;
+			// varying vec3 vColor;
 			varying vec2 vUv;
 
 			void main() {
@@ -202,15 +200,14 @@
 		var particleSystem, uniforms, geometry, seaPlane, skyuniforms,skyBox, sky, terrain;
 		
 		var group = new THREE.Group();
-		var texture = ['Assets/snowflakes.png', 'Assets/leaf4.png', 'Assets/raindrop.png', 'Assets/flower.png'];
-		var skytexture = ['Assets/winter.jpg', 'Assets/summer.jpg', 'Assets/winter1.jpg', 'Assets/winter.jpg'];
+		var texture = ['Assets/snowflakes.png', 'Assets/leaf4.png', 'Assets/flower.png', 'Assets/raindrop.png'];
+		var skytexture = ['Assets/winter.jpg', 'Assets/summer.jpg', 'Assets/winter.jpg', 'Assets/winter1.jpg'];
 		var Idx = 0, space =false;
-
 		var particles = 500;
 
 		var WIDTH = window.innerWidth;
 		var HEIGHT = window.innerHeight;
-		var season = [0x20202c, 0x7ec0ee, 0xe8b272, 0xFFC0CB];
+		var season = [0x20202c, 0x7ec0ee, 0xFFC0CB, 0xe8b272];
 		init();
 		animate();
 
@@ -254,6 +251,7 @@
 			}
 			terrain.geometry.attributes.position.needsUpdate = true;
 			terrain.geometry.computeVertexNormals();
+			terrain.position.y = -5;
 			terrain.rotation.x = -90 * Math.PI/180;
 
 			scene.add(terrain);
@@ -392,6 +390,7 @@
 	
 				var tree = loadedObj.getObjectByName("tree.001");
   				var treematerial = new THREE.MeshBasicMaterial({transparent: false, map: texture});
+  				tree.position.y = -5;
 			    tree.material = treematerial;
 			    tree.castShadow = true;
 			    scene.add(tree);
@@ -433,7 +432,7 @@
 		}
 		function switchScene() {
 			console.log(Idx);
-			Idx < 3 ? Idx += 1 : Idx = 0;
+			Idx < 2 ? Idx += 1 : Idx = 0;
 			uniforms.pattern.value = Idx;
 			var reference = geometry.attributes.refer.array;
 			switch (Idx) {
@@ -448,10 +447,10 @@
 						}
 					}
 			        break;
-			    case 1:
+			    case 1: //spiral leaf
 			        uniforms.winddir.value = new THREE.Vector3( 0.03, -5, 0.1);
 			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
-						var initpos = [getRandom(-10.0, 10.0),getRandom(0.0, 5.0),getRandom(-10.0, 10.0)];
+						var initpos = [getRandom(-10.0, 10.0),getRandom(10.0, 20.0),getRandom(-10.0, 10.0)];
 						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
 							reference[ i6 + j3	  ] = initpos[0];
 							reference[ i6 + j3 + 1] = initpos[1];
@@ -459,19 +458,8 @@
 						}
 					}
 			        break;
-			    case 2: //raindrop
-			        uniforms.winddir.value = new THREE.Vector3( 0, -10, 0);
-			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
-						var initpos = [getRandom(-50.0, 50.0),60,getRandom(-50.0, 50.0)];
-						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
-							reference[ i6 + j3	  ] = initpos[0];
-							reference[ i6 + j3 + 1] = initpos[1];
-							reference[ i6 + j3 + 2] = initpos[2];
-						}
-					}
-			        break;
-			     case 3: //flower
-			        uniforms.winddir.value = new THREE.Vector3( 0.3, 1.5, 0);
+			    case 2: //flower
+			    	uniforms.winddir.value = new THREE.Vector3( 0.3, 1.5, 0);
 			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
 						var initpos = [getRandom(-10.0, 10.0),getRandom(18.0, 20.0),getRandom(-5.0, 5.0)];
 						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
@@ -480,12 +468,24 @@
 							reference[ i6 + j3 + 2] = initpos[2];
 						}
 					}
+
+			        break;
+			     case 3: //raindrop
+			     	uniforms.winddir.value = new THREE.Vector3( 0, -10, 0);
+			        for (var i = 0, i6 = 0; i < particles; i ++, i6+= 18) {
+						var initpos = [getRandom(-50.0, 50.0),60,getRandom(-50.0, 50.0)];
+						for (var j =0, j3 = 0; j < 6; j ++, j3 += 3) {
+							reference[ i6 + j3	  ] = initpos[0];
+							reference[ i6 + j3 + 1] = initpos[1];
+							reference[ i6 + j3 + 2] = initpos[2];
+						}
+					}
+		
 			        break;
 			}
 			uniforms.texture.value = new THREE.TextureLoader().load( texture[Idx] );
 			// skyuniforms.texture.value = new THREE.TextureLoader().load( skytexture[Idx] );
 			
-			//TweenMax.to(skyBox.material, 0, { opacity: 0 });
 			geometry.attributes.refer.needsUpdate = true;
 			particleSystem.material.needsUpdate = true;
 			hemiLight.color= new THREE.Color(season[Idx]);
@@ -499,7 +499,7 @@
 		function init() {
 			camera = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 0.1, 10000 );
 			camera.position.x = -250;
-			camera.position.y = 50;
+			camera.position.y = 25;
 			scene = new THREE.Scene();
 
 			createLights();
@@ -519,9 +519,7 @@
 			container.appendChild( renderer.domElement );
 			
 			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-			cameraControls.target.set(0, 40, 0);
-			// camera.position.x = -250;
-			// camera.position.y = 50;
+			cameraControls.target.set(0, 40, 0); 
 
 			cameraControls.minPolarAngle = Math.PI/4; // radians
 			cameraControls.maxPolarAngle = Math.PI/2; // radians
@@ -555,6 +553,7 @@
 
 		function animate() {
 			requestAnimationFrame( animate );
+			cameraControls.update();
 			render();
 		}
 

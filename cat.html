@@ -181,7 +181,7 @@
 
 			// import tree
 			var loader = new THREE.JSONLoader();	
-			loader.load('3dmodels/CatWALK.json', function(geometry, materials) {
+			loader.load('3dmodels/CatAnimate.json', function(geometry, materials) {
 				materials.forEach(function(mat) {
 					mat.skinning = true;
 				})
@@ -200,9 +200,8 @@
 			   	action.walk.clampWhenFinished = true;
 
 			    scene.add(cat);
-
 			   	animate();
-			    cat.position.set(0, -0.1, 0);
+			    cat.position.set(0, -0.95, 0);
 			    isLoaded = true;
 
 			    action.walk.play();
@@ -280,7 +279,7 @@
 				groundMat.color.setHSL( 0.095, 1, 0.75 );
 				var ground = new THREE.Mesh( groundGeo, groundMat );
 				ground.rotation.x = -Math.PI/2;
-				ground.position.y = -0.07;
+				ground.position.y = -0.98;
 				scene.add( ground );
 				ground.receiveShadow = true;
 				// SKYDOME
@@ -322,7 +321,7 @@
 			container.appendChild( renderer.domElement );
 			
 			cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
-			cameraControls.target.set(0, 1, 0);
+			cameraControls.target.set(0, 0, 0);
 
 				// RENDERER
 				// renderer = new THREE.WebGLRenderer( { antialias: true } );
