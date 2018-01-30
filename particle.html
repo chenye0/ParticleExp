@@ -5,17 +5,11 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
-			body {
-				color: #ffffff;
-				margin: 0px;
-				overflow: hidden;
-			}
 		#info {
 				position: absolute;
 				top: 0px;
 				width: 100%;
 				padding: 5px;
-				font-family: Monospace;
 				font-size: 13px;
 				text-align: center;
 				font-weight: bold;
@@ -40,13 +34,25 @@
 			    text-align: center;
 			    text-decoration: none;
 			}
+			.instruction {
+				position: fixed;
+				bottom: 0;
+				left: 10px;
+				font-size: 14px;
+				z-index: 10;
+				color: #333;
+			}
 		</style>
+		<link rel="stylesheet" href="main.css">
 	</head>
-
 	<body>
-		<button type="button" onclick="switchScene()">Switch Scene</button>
+		<!-- <button type="button" onclick="switchScene()">Switch Scene</button> -->
+		<p class='instruction'>press Space to switch particle mode</p>
+		<a class='backbtn' href="index.html">
+			<img src="Assets/backbtn.svg"></img>
+			<span>All Scenes</span>
+		</a>
 		<div id="container"></div>
-
 		<script src="js/three.min.js"></script>
 		<script type="text/javascript" src="js/OrbitControls.js"></script>
 		<script src="js/Detector.js"></script>
@@ -532,17 +538,21 @@
 		}
 		
 		document.body.onkeyup = function(e){
-		    if(e.keyCode == 32){
-		    	cameraControls.enabled = space;
-		        space = !space;
-		    	if (space) {
-					document.addEventListener('mousedown', onDocumentMouseDown, true);
-					document.addEventListener('mouseup', onDocumentMouseUp, true);
-		    	} else {
-		    		document.removeEventListener('mousedown', onDocumentMouseDown, true);
-					document.removeEventListener('mouseup', onDocumentMouseUp, true);
-		    	}	
+		    if(e.keyCode == 32){ 
+		    	switchScene();
+		    	// cameraControls.enabled = space;
+		    //    space = !space;
+		   //  	if (space) {
+					// document.addEventListener('mousedown', onDocumentMouseDown, true);
+					// // document.addEventListener('mouseup', onDocumentMouseUp, true);
+		   //  	} else {
+		   //  		document.removeEventListener('mousedown', onDocumentMouseDown, true);
+					// // document.removeEventListener('mouseup', onDocumentMouseUp, true);
+		   //  	}	
 		    }
+		}
+		function onDocumentMouseDown() {
+			switchScene();
 		}
 
 		function onWindowResize() {

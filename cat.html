@@ -42,17 +42,18 @@
 			    text-decoration: none;
 			}
 		</style>
+		<link rel="stylesheet" href="main.css">
 	</head>
-
 	<body>
+		<a class='backbtn' href="index.html">
+			<img src="Assets/backbtn.svg"></img>
+			<span>All Scenes</span>
+		</a>
 		<div id="container"></div>
-
 		<script src="js/three.min.js"></script>
 		<script type="text/javascript" src="js/OrbitControls.js"></script>
 		<script src="js/Detector.js"></script>
-		<!-- <script src="../three.js-dev/examples/js/libs/stats.min.js"></script> -->
 		<script src="js/perlin.js"></script>
-
 		<script type="x-shader/x-vertex" id="vertexShader">
 			varying vec3 vWorldPosition;
 			void main() {
