@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-113456826-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-113456826-1');
+    </script>
     <title>Exp - WebGL/Threejs</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -116,6 +125,8 @@
     <script src="js/TweenMax.min.js"></script>
     <!-- <script src="js/Tween.js"></script> -->
     <script src="js/CSS3DRender.js"></script>
+
+
     <script>
     if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 

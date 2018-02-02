@@ -10,18 +10,18 @@ body {
 	top:12px;
 	z-index: 10;
 	font-size:14px;
-	/*background-color: #333; /* Green */
-	/*padding: 5px 10px;*/
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-    border: none;
-    color: black;    
+    border: none;  
+    color: #1EAEDB; 
     text-decoration: none;
 }
-
+.backbtn span{
+    color: #1EAEDB; 
+}
 .backbtn img{
-	width: 20px;
-	height: 20px;
-	margin-right: 2px;
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
 }
