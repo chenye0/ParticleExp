@@ -7,7 +7,6 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'UA-113456826-1');
     </script>
     <title>Exp - WebGL/Threejs</title>
@@ -15,13 +14,6 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
 
-      body {
-        /*color: #101429;*/
-        margin: 0px;
-        overflow: hidden;
-        background-color: #101429;
-        font-family: Arial, Helvetica, sans-serif;
-      }
       #container {
         width: 300px;
         color: white;
@@ -35,9 +27,7 @@
         font-size: 0.75em;
       }
       h2 {
-        /*color: rgb(143,28,67);*/
-        font-family: Georgia, Helvetica, Sans-serif;
-        color: #87E8E9
+        color: #87E8E9;
       }
 
       #layerbg {
@@ -53,7 +43,7 @@
         background-color: none;
         width: 300px;
         font-size: 0.2em;
-        line-height: 1.5em;
+        line-height: 1.2em;
         padding: 1em;
       }
       .thumbnail {
@@ -79,23 +69,8 @@
       .thumbnail img:hover {
         transform: scale(1.05);
       }
-      #hideAll {
-        font-family: 'Roboto Mono', monospace, serif;
-        display: flex;
-        color: white;
-        font-size: 36px;
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-        left: 0px; 
-        right: 0px; 
-        top: 0px; 
-        bottom: 0px; 
-        background-color: #333;
-        background-image: url('Assets/background.jpg');
-        z-index: 99; /* Higher than anything else in the document */
-       }
     </style>
+    <link rel="stylesheet" href="main.css">
   </head>
   <body>
     <div style="display: none" id="hideAll"><p>Loading Assets...</p></div>
@@ -106,7 +81,7 @@
     <div id="layerbg"></div>
     <div class="thumbnail" id='p1'>
       <a href='cat.html'><img src="Assets/thumbnails/p1.png"></img></a>
-      <p>Nyanko-sensei(from anime Natsume's Book of Friends), modeled with Blender3D.</p>
+      <p>Nyanko-sensei (from anime Natsume's Book of Friends), modeled with Blender3D.</p>
     </div>
     <div class="thumbnail" id='p2'>
       <a href='particle.html'><img src="Assets/thumbnails/p4.png"></img></a>

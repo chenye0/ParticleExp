@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 body {
 	color: #ffffff;
 	margin: 0px;
 	overflow: hidden;
 	font-family: Monospace;
+	background-color: #101429;
+	font-family: 'Roboto', monospace, serif;
 }
 .backbtn {
 	position: fixed;
@@ -24,4 +28,18 @@ body {
 	width: 18px;
 	height: 18px;
 	margin-right: 4px;
+}
+#hideAll {
+	display: flex;
+	color: white;
+	font-size: 36px;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	left: 0px; 
+	right: 0px; 
+	top: 0px; 
+	bottom: 0px; 
+	background-color: #101429;
+	z-index: 99; /* Higher than anything else in the document */
 }

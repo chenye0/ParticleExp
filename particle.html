@@ -7,14 +7,13 @@
 	      window.dataLayer = window.dataLayer || [];
 	      function gtag(){dataLayer.push(arguments);}
 	      gtag('js', new Date());
-
 	      gtag('config', 'UA-113456826-1');
 	    </script>
-		<title>Exp - Shader</title>
+		<title>Particle Shader</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
-		#info {
+		    #info {
 				position: absolute;
 				top: 0px;
 				width: 100%;
@@ -30,19 +29,6 @@
 				overflow: hidden;
 				/*background: linear-gradient(#20202c, #515175);*/
 			}
-			a {
-				color: #fff;
-			}
-			button {
-				position: fixed;
-				z-index: 10;
-				background-color: black; /* Green */
-			    border: none;
-			    color: white;
-			    padding: 15px 15px;
-			    text-align: center;
-			    text-decoration: none;
-			}
 			.instruction {
 				position: fixed;
 				bottom: 16px;
@@ -55,7 +41,7 @@
 		<link rel="stylesheet" href="main.css">
 	</head>
 	<body>
-		<!-- <button type="button" onclick="switchScene()">Switch Scene</button> -->
+		<div style="display: none" id="hideAll"><p>Loading Assets...</p></div>
 		<p class='instruction'>press Space to switch particle mode</p>
 		<a class='backbtn' href="index.html">
 			<img src="Assets/backbtn.svg"></img>
@@ -193,7 +179,6 @@
 				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 			}
 		</script>
-
 		<script type="x-shader/x-fragment" id="sfragmentShader">
 			uniform vec3 topColor;
 			uniform vec3 bottomColor;
@@ -616,6 +601,9 @@
 			renderer.render( scene, camera );
 		}
 	</script>
-
+	<script type="text/javascript">
+		window.onload = function() { 
+	  	document.getElementById("hideAll").style.display = "none"; }
+	</script>
 </body>
 </html>
